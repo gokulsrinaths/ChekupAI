@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/ChekupAI/static/css/main.11072c20.css",
-    "main.js": "/ChekupAI/static/js/main.bea6d6f9.js",
-    "static/js/271.2b552352.chunk.js": "/ChekupAI/static/js/271.2b552352.chunk.js",
+    "main.css": "/ChekupAI/static/css/main.f01c7caa.css",
+    "main.js": "/ChekupAI/static/js/main.9d0a27b5.js",
+    "static/js/461.fc0bea68.chunk.js": "/ChekupAI/static/js/461.fc0bea68.chunk.js",
     "static/js/141.a0dcee84.chunk.js": "/ChekupAI/static/js/141.a0dcee84.chunk.js",
-    "static/js/326.a3626277.chunk.js": "/ChekupAI/static/js/326.a3626277.chunk.js",
+    "static/js/28.9f9fb234.chunk.js": "/ChekupAI/static/js/28.9f9fb234.chunk.js",
     "static/js/389.f121de6a.chunk.js": "/ChekupAI/static/js/389.f121de6a.chunk.js",
     "static/js/675.deb493ea.chunk.js": "/ChekupAI/static/js/675.deb493ea.chunk.js",
     "static/js/921.fa73f00c.chunk.js": "/ChekupAI/static/js/921.fa73f00c.chunk.js",
     "index.html": "/ChekupAI/index.html",
-    "main.11072c20.css.map": "/ChekupAI/static/css/main.11072c20.css.map",
-    "main.bea6d6f9.js.map": "/ChekupAI/static/js/main.bea6d6f9.js.map",
-    "271.2b552352.chunk.js.map": "/ChekupAI/static/js/271.2b552352.chunk.js.map",
+    "main.f01c7caa.css.map": "/ChekupAI/static/css/main.f01c7caa.css.map",
+    "main.9d0a27b5.js.map": "/ChekupAI/static/js/main.9d0a27b5.js.map",
+    "461.fc0bea68.chunk.js.map": "/ChekupAI/static/js/461.fc0bea68.chunk.js.map",
     "141.a0dcee84.chunk.js.map": "/ChekupAI/static/js/141.a0dcee84.chunk.js.map",
-    "326.a3626277.chunk.js.map": "/ChekupAI/static/js/326.a3626277.chunk.js.map",
+    "28.9f9fb234.chunk.js.map": "/ChekupAI/static/js/28.9f9fb234.chunk.js.map",
     "389.f121de6a.chunk.js.map": "/ChekupAI/static/js/389.f121de6a.chunk.js.map",
     "675.deb493ea.chunk.js.map": "/ChekupAI/static/js/675.deb493ea.chunk.js.map",
     "921.fa73f00c.chunk.js.map": "/ChekupAI/static/js/921.fa73f00c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.11072c20.css",
-    "static/js/main.bea6d6f9.js"
+    "static/css/main.f01c7caa.css",
+    "static/js/main.9d0a27b5.js"
   ]
 }
