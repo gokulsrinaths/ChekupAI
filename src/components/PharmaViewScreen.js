@@ -104,16 +104,16 @@ const PharmaViewScreen = ({ onRequestDataset }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 max-w-mobile mx-auto">
       {/* Header */}
-      <div className="px-6 py-6">
-        <h1 className="text-xl font-semibold text-gray-900">Marketplace</h1>
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-semibold text-gray-900">Marketplace</h1>
         <p className="text-xs text-gray-500 mt-1">Search, filter, and request de-identified cohorts</p>
       </div>
 
 
       {/* Controls */}
-      <div className="px-6 mb-3" style={{ position: 'sticky', top: 64, zIndex: 20, background: 'white', boxShadow: '0 1px 0 rgba(0,0,0,0.06)' }}>
+      <div className="px-4 mb-3" style={{ position: 'sticky', top: 64, zIndex: 20, background: 'white', boxShadow: '0 1px 0 rgba(0,0,0,0.06)' }}>
         <input
           value={query}
           onChange={(e)=>{ setQuery(e.target.value); }}

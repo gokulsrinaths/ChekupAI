@@ -64,19 +64,19 @@ const WalletScreen = ({ userData, onDataUpdate }) => {
 
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 max-w-mobile mx-auto">
       {/* Header */}
-      <div className="px-6 py-6">
-        <h1 className="text-xl font-semibold text-gray-900">Wallet</h1>
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-semibold text-gray-900">Wallet</h1>
       </div>
 
       {/* Balance Card */}
-      <div className="px-6 mb-6">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
+      <div className="px-4 mb-4">
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm text-gray-600">Balance</p>
-              <p className="text-2xl font-semibold text-gray-900">${userData.balance.toFixed(2)}</p>
+              <p className="text-xs text-gray-600">Balance</p>
+              <p className="text-xl font-semibold text-gray-900">${userData.balance.toFixed(2)}</p>
             </div>
             <span className="text-lg">💳</span>
           </div>
@@ -84,7 +84,7 @@ const WalletScreen = ({ userData, onDataUpdate }) => {
           <button
             onClick={handleCashOut}
             disabled={userData.balance === 0}
-            className={`w-full py-2 rounded-lg font-medium ${
+            className={`w-full py-2 rounded-lg font-medium text-sm ${
               userData.balance === 0 
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                 : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -97,8 +97,8 @@ const WalletScreen = ({ userData, onDataUpdate }) => {
 
 
       {/* Transaction History */}
-      <div className="px-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-3">Recent Activity</h2>
+      <div className="px-4">
+        <h2 className="text-base font-medium text-gray-900 mb-3">Recent Activity</h2>
         <div className="space-y-2">
           {transactions.map((transaction, index) => (
             <div

@@ -12,7 +12,7 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
   const [aiMessages, setAiMessages] = useState([]);
   const [aiInput, setAiInput] = useState('');
 
-  // Transform shared files into research items for doctors (no raw content)
+  // Transform shared files into research items for doctors (no raw content, no money)
   const cases = useMemo(() => {
     return sharedFiles
       .filter(f => f.status === 'shared' || f.status === 'earned')
@@ -82,55 +82,57 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
   }, [searchResults]);
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 max-w-mobile mx-auto">
       {/* Header */}
-      <div className="px-6 py-6">
-        <h1 className="text-xl font-semibold text-gray-900">Research Database</h1>
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-semibold text-gray-900">Research Database</h1>
         <p className="text-[10px] text-gray-500 mt-1">No raw files are shared here. Views are simulated.</p>
         <p className="text-xs text-gray-500">Browse patient-shared records for research purposes</p>
       </div>
 
       {/* Search Bar */}
-      <div className="px-6 mb-4">
+      <div className="px-4 mb-4">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search cases..."
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
         />
-        <div className="flex items-center space-x-2 mt-2 text-xs">
-          <button onClick={()=>{ setFilter('all'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded ${filter==='all'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>All</button>
-          <button onClick={()=>{ setFilter('female'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded ${filter==='female'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>Female</button>
-          <button onClick={()=>{ setFilter('male'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded ${filter==='male'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>Male</button>
-          <span className="ml-auto text-gray-500">{searchResults.length} matches</span>
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center space-x-1">
+            <button onClick={()=>{ setFilter('all'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded text-xs ${filter==='all'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>All</button>
+            <button onClick={()=>{ setFilter('female'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded text-xs ${filter==='female'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>Female</button>
+            <button onClick={()=>{ setFilter('male'); handleSearch(searchQuery); }} className={`px-2 py-1 rounded text-xs ${filter==='male'?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}`}>Male</button>
+          </div>
+          <span className="text-xs text-gray-500">{searchResults.length} matches</span>
         </div>
       </div>
 
       {/* Results */}
-      <div className="px-6">
+      <div className="px-4">
         <div className="space-y-2">
           {searchResults.map((caseData, index) => (
             <div
               key={caseData.id}
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <div className="flex items-center space-x-3">
-                <span className="text-lg">{caseData.mriThumbnail}</span>
-                <div>
-                  <p className="font-medium text-gray-900">{caseData.condition}</p>
-                  <p className="text-sm text-gray-600">{caseData.description}</p>
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <span className="text-lg flex-shrink-0">{caseData.mriThumbnail}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 text-sm truncate">{caseData.condition}</p>
+                  <p className="text-xs text-gray-600 truncate">{caseData.description}</p>
                   {caseData.shareTarget && (
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600">Shared to {caseData.shareTarget}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 inline-block mt-1">Shared to {caseData.shareTarget}</span>
                   )}
                 </div>
               </div>
               <button
                 onClick={() => handleViewCase(caseData)}
-                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center space-x-1 px-2 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
               >
                 <Eye className="w-3 h-3" />
-                <span>View</span>
+                <span className="hidden sm:inline">View</span>
               </button>
             </div>
           ))}
@@ -138,7 +140,7 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
       </div>
 
       {/* AI Tip */}
-      <div className="px-6 mt-4">
+      <div className="px-4 mt-4">
         <div className="text-xs text-blue-700 bg-blue-50 rounded-lg p-2">
           {aiTip}
         </div>

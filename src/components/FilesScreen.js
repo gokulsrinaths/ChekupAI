@@ -106,20 +106,20 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
   }, [aiMessages]);
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 max-w-mobile mx-auto">
       {/* Header */}
-      <div className="px-6 py-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Files</h1>
+      <div className="px-4 py-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-gray-900">Files</h1>
         <button
           onClick={() => setShowDetail(true) || setSelectedFile({ id: Date.now(), name: 'New File', type: 'Imaging', status: 'private', icon: '🖼️', size: '—', date: new Date().toISOString().slice(0,10), earnings: 0 })}
-          className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm"
+          className="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs"
         >
           Add File
         </button>
       </div>
 
       {/* Files List */}
-      <div className="px-6">
+      <div className="px-4">
         <div className="space-y-2">
           {files.map((file) => (
             <button
@@ -127,14 +127,14 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
               onClick={() => handleFileAction(file, 'view')}
               className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition-colors"
             >
-              <div className="flex items-center space-x-3">
-                <span className="text-lg">{file.icon}</span>
-                <div>
-                  <p className="font-medium text-gray-900">{file.name}</p>
-                  <p className="text-sm text-gray-600">{file.type} • {file.size || '—'} • {file.date || ''}</p>
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <span className="text-lg flex-shrink-0">{file.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 text-sm truncate">{file.name}</p>
+                  <p className="text-xs text-gray-600 truncate">{file.type} • {file.size || '—'} • {file.date || ''}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-shrink-0">
                 {renderStatusChip(file.status)}
               </div>
             </button>

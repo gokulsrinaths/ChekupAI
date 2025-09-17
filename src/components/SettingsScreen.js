@@ -23,27 +23,27 @@ const SettingsScreen = ({ userData, onDataUpdate, onViewAuditLog, onNavigate }) 
   };
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 max-w-mobile mx-auto">
       {/* Header */}
-      <div className="px-6 py-6">
-        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
       </div>
 
       {/* Profile Section */}
-      <div className="px-6 mb-6">
-        <div className="bg-gray-50 rounded-lg p-4">
+      <div className="px-4 mb-4">
+        <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center space-x-3">
             <span className="text-lg">👤</span>
             <div>
-              <h3 className="font-medium text-gray-900">John Doe</h3>
-              <p className="text-sm text-gray-600">john.doe@example.com</p>
+              <h3 className="font-medium text-gray-900 text-sm">John Doe</h3>
+              <p className="text-xs text-gray-600">john.doe@example.com</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Settings Options */}
-      <div className="px-6 space-y-4">
+      <div className="px-4 space-y-3">
         {/* Data Sharing */}
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center justify-between">
