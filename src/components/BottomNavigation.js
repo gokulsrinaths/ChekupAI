@@ -34,48 +34,60 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
   const navItems = getNavItems();
 
   return (
-    <div
-      className="bottom-nav bg-white border-t border-gray-200 shadow-lg"
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl z-50"
       style={{ 
-        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)'
+        boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.12)',
       }}
     >
-      <div className="flex items-center justify-around py-2">
+      <div className="flex items-center justify-around py-4 px-6">
         {navItems.map((item, index) => {
           const isActive = currentScreen === item.screen;
           
           return (
-            <button
+            <motion.button
               key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => onScreenChange(item.screen)}
-              className={`flex flex-col items-center justify-center py-3 px-5 rounded-xl transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ${
                 isActive 
-                  ? 'text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-blue-600 bg-blue-50/80 shadow-md' 
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               }`}
               aria-label={`Navigate to ${item.label}`}
               aria-current={isActive ? 'page' : undefined}
             >
-              <item.icon className="w-6 h-6 mb-1" />
-              <span className="text-xs font-medium">
+              <motion.div
+                animate={{ scale: isActive ? 1.1 : 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <item.icon className="w-6 h-6 mb-1" />
+              </motion.div>
+              <span className={`text-xs font-medium transition-all duration-300 ${
+                isActive ? 'text-blue-600' : 'text-gray-500'
+              }`}>
                 {item.label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
       
-      {/* Safe area for devices with home indicator */}
+      {/* Perfect safe area for devices with home indicator */}
       <div 
-        className="h-2" 
+        className="h-3 bg-gradient-to-t from-white/95 to-transparent" 
         style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(10px)'
         }}
       />
-    </div>
+    </motion.div>
   );
 };
 

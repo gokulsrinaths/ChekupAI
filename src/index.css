@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Perfect scrollbar styling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Perfect smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Perfect focus states */
+*:focus {
+  outline: none;
+}
+
+/* Perfect selection styling */
+::selection {
+  background-color: rgba(147, 51, 234, 0.2);
+  color: inherit;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
