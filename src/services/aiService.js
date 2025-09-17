@@ -339,6 +339,9 @@ Remember: You are analyzing real medical documents, so be thorough, accurate, an
       for (const endpoint of apiEndpoints) {
         try {
           console.log(`Trying API endpoint: ${endpoint.url}`);
+          console.log('Request headers:', endpoint.headers);
+          console.log('Request body:', JSON.stringify(endpoint.body, null, 2));
+          
           const response = await fetch(endpoint.url, {
             method: 'POST',
             headers: endpoint.headers,
@@ -346,6 +349,7 @@ Remember: You are analyzing real medical documents, so be thorough, accurate, an
           });
 
           console.log(`API response status: ${response.status}`);
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
           if (response.ok) {
             const result = await response.json();
@@ -369,9 +373,11 @@ Remember: You are analyzing real medical documents, so be thorough, accurate, an
           } else {
             const errorText = await response.text();
             console.error(`API error response: ${errorText}`);
+            console.error(`Status: ${response.status}, StatusText: ${response.statusText}`);
           }
         } catch (error) {
           console.error(`API endpoint error:`, error);
+          console.error('Error details:', error.message, error.stack);
           continue;
         }
       }
