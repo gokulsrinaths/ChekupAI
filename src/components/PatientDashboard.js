@@ -47,63 +47,50 @@ const PatientDashboard = ({ user, onNavigate }) => {
   // Removed family member logic - focusing on individual user
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pb-20 max-w-mobile mx-auto">
-      {/* Header - Perfect spacing and typography */}
-      <div className="px-6 py-8 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-24 max-w-mobile mx-auto">
+      {/* Header */}
+      <div className="px-4 py-6 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-light text-gray-900 tracking-tight">Health</h1>
-            <p className="text-base text-gray-500 font-light">Welcome back, {user?.user_metadata?.full_name || 'Jane'}</p>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Health Dashboard</h1>
+            <p className="text-sm text-gray-600">Welcome back, {user?.user_metadata?.full_name || 'Jane'}</p>
           </div>
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <span className="text-white text-xl">👩</span>
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <span className="text-white text-lg">👩</span>
           </div>
         </div>
       </div>
 
-      {/* AI Chatbot - Perfect Main Section */}
-      <div className="px-4 py-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
-        >
-          {/* Chatbot Header - Perfect typography */}
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md">
-              <MessageCircle className="w-5 h-5 text-white" />
+      {/* AI Chatbot - Main Section */}
+      <div className="px-4 py-4">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+          {/* Chatbot Header */}
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <MessageCircle className="w-4 h-4 text-white" />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-xl font-light text-gray-900 tracking-tight">AI Assistant</h3>
-              <p className="text-sm text-gray-500 font-light">👋 Hi {user?.user_metadata?.full_name || 'Jane'}, how are you today?</p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">AI Health Assistant</h3>
+              <p className="text-sm text-gray-600">👋 Hi {user?.user_metadata?.full_name || 'Jane'}, how are you today?</p>
             </div>
           </div>
 
-          {/* Chat Messages - Perfect spacing and design */}
-          <div className="bg-gray-50/50 rounded-xl p-4 mb-4 max-h-48 overflow-y-auto scrollbar-hide">
-            <div className="space-y-3">
-              {chatMessages.map((msg, index) => (
-                <motion.div 
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[80%] px-3 py-2 rounded-xl text-sm leading-relaxed ${
-                    msg.sender === 'user' 
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
-                      : 'bg-white text-gray-800 border border-gray-200 shadow-sm'
-                  }`}>
-                    {msg.message}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          {/* Chat Messages */}
+          <div className="bg-gray-50 rounded-xl p-4 mb-4 max-h-48 overflow-y-auto">
+            {chatMessages.map(msg => (
+              <div key={msg.id} className={`mb-3 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                <div className={`inline-block p-3 rounded-lg text-sm max-w-[80%] ${
+                  msg.sender === 'user' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-white text-gray-800 border border-gray-200'
+                }`}>
+                  {msg.message}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Chat Input - Perfect interaction design */}
+          {/* Chat Input */}
           <div className="flex space-x-2">
             <input
               type="text"
@@ -111,65 +98,45 @@ const PatientDashboard = ({ user, onNavigate }) => {
               onChange={(e) => setChatInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleChatSend()}
               placeholder="Ask about your health..."
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 placeholder-gray-400"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleChatSend}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 font-medium shadow-md"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-medium"
             >
               Send
-            </motion.button>
+            </button>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Quick Actions - Perfect design */}
-      <div className="px-4 py-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-        >
-          <h2 className="text-lg font-light text-gray-900 mb-4 tracking-tight">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map((action, index) => (
-              <motion.button
-                key={action.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={action.action}
-                className={`group p-4 rounded-xl bg-white shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 ${
-                  action.color === 'blue' ? 'hover:bg-blue-50/50' :
-                  action.color === 'green' ? 'hover:bg-green-50/50' :
-                  action.color === 'purple' ? 'hover:bg-purple-50/50' :
-                  'hover:bg-orange-50/50'
-                }`}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 ${
-                    action.color === 'blue' ? 'bg-blue-100 group-hover:bg-blue-200' :
-                    action.color === 'green' ? 'bg-green-100 group-hover:bg-green-200' :
-                    action.color === 'purple' ? 'bg-purple-100 group-hover:bg-purple-200' :
-                    'bg-orange-100 group-hover:bg-orange-200'
-                  }`}>
-                    <action.icon className={`w-5 h-5 ${
-                      action.color === 'blue' ? 'text-blue-600' :
-                      action.color === 'green' ? 'text-green-600' :
-                      action.color === 'purple' ? 'text-purple-600' :
-                      'text-orange-600'
-                    }`} />
-                  </div>
-                  <p className="text-xs font-medium text-gray-900 text-center leading-tight">{action.title}</p>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+      {/* Quick Actions */}
+      <div className="px-4 py-2">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {quickActions.map(action => (
+            <motion.button
+              key={action.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={action.action}
+              className={`p-4 rounded-xl bg-white shadow-sm border border-gray-200 hover:shadow-md transition-all ${
+                action.color === 'blue' ? 'hover:bg-blue-50' :
+                action.color === 'green' ? 'hover:bg-green-50' :
+                action.color === 'purple' ? 'hover:bg-purple-50' :
+                'hover:bg-orange-50'
+              }`}
+            >
+              <action.icon className={`w-6 h-6 mx-auto mb-2 ${
+                action.color === 'blue' ? 'text-blue-600' :
+                action.color === 'green' ? 'text-green-600' :
+                action.color === 'purple' ? 'text-purple-600' :
+                'text-orange-600'
+              }`} />
+              <p className="text-sm font-medium text-gray-900">{action.title}</p>
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       {/* Removed old AI Health Assistant section - now integrated above */}

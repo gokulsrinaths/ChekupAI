@@ -34,58 +34,48 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
   const navItems = getNavItems();
 
   return (
-    <motion.div
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[375px] bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl z-50"
+    <div
+      className="bottom-nav bg-white border-t border-gray-200 shadow-lg"
       style={{ 
-        boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.12)',
-        maxWidth: '375px',
-        left: '50%',
-        transform: 'translateX(-50%)'
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)',
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)'
       }}
     >
-      <div className="flex items-center justify-around py-3 px-4">
+      <div className="flex items-center justify-around py-2">
         {navItems.map((item, index) => {
           const isActive = currentScreen === item.screen;
           
           return (
-            <motion.button
+            <button
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
               onClick={() => onScreenChange(item.screen)}
-              className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-300 ${
+              className={`flex flex-col items-center justify-center py-3 px-5 rounded-xl transition-all duration-200 ${
                 isActive 
-                  ? 'text-blue-600 bg-blue-50/80 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+                  ? 'text-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
               aria-label={`Navigate to ${item.label}`}
               aria-current={isActive ? 'page' : undefined}
             >
-              <motion.div
-                animate={{ scale: isActive ? 1.1 : 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <item.icon className="w-5 h-5 mb-1" />
-              </motion.div>
-              <span className={`text-xs font-medium transition-all duration-300 ${
-                isActive ? 'text-blue-600' : 'text-gray-500'
-              }`}>
+              <item.icon className="w-6 h-6 mb-1" />
+              <span className="text-xs font-medium">
                 {item.label}
               </span>
-            </motion.button>
+            </button>
           );
         })}
       </div>
       
-      {/* Mobile app safe area */}
-      <div className="h-2 bg-white/95" />
-    </motion.div>
+      {/* Safe area for devices with home indicator */}
+      <div 
+        className="h-2" 
+        style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)'
+        }}
+      />
+    </div>
   );
 };
 
