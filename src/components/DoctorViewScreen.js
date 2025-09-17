@@ -1,12 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X, MessageCircle, Eye, FileText, Calendar, User, Hash } from 'lucide-react';
 
 const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [showPaymentAnimation, setShowPaymentAnimation] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [aiMessages, setAiMessages] = useState([]);
+  const [aiInput, setAiInput] = useState('');
 
   // Transform shared files into research items for doctors (no raw content)
   const cases = useMemo(() => {
@@ -19,9 +23,9 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
         gender: f.gender || (idx % 2 === 0 ? 'Male' : 'Female'),
         age: f.age || (28 + (idx % 30)),
         mriThumbnail: f.icon || '📄',
-        price: 10 + (idx % 6),
         description: `${f.type} • ${f.size || '—'} • ${f.date || ''}`,
-        shareTarget: f.shareTarget
+        shareTarget: f.shareTarget,
+        fullData: f // Store full file data for preview
       }));
   }, [sharedFiles]);
 
@@ -48,16 +52,31 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
   };
 
   const handleViewCase = (caseData) => {
-    // Animate balance increase
-    setShowPaymentAnimation(true);
+    setSelectedFile(caseData);
     onViewCase?.(caseData);
+  };
+
+  const handleAISend = () => {
+    if (!aiInput.trim()) return;
     
-    setTimeout(() => setShowPaymentAnimation(false), 2000);
+    const userMessage = { type: 'user', text: aiInput };
+    setAiMessages(prev => [...prev, userMessage]);
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse = {
+        type: 'ai',
+        text: `Based on this ${selectedFile?.type} file, I can see patterns that suggest ${selectedFile?.condition}. The data shows typical characteristics for a ${selectedFile?.age}-year-old ${selectedFile?.gender?.toLowerCase()}. Would you like me to analyze specific aspects?`
+      };
+      setAiMessages(prev => [...prev, aiResponse]);
+    }, 1000);
+    
+    setAiInput('');
   };
 
   const aiTip = useMemo(() => {
     const count = searchResults.length;
-    if (count === 0) return 'No results. Try broader terms (e.g., “hypertension”).';
+    if (count === 0) return 'No results. Try broader terms (e.g., "hypertension").';
     const female = searchResults.filter(c=>c.gender==='Female').length;
     return `AI tip: ${female}/${count} matches are female; consider age 40–60 for better similarity.`;
   }, [searchResults]);
@@ -66,9 +85,9 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
     <div className="min-h-screen bg-white pb-24">
       {/* Header */}
       <div className="px-6 py-6">
-        <h1 className="text-xl font-semibold text-gray-900">Research</h1>
+        <h1 className="text-xl font-semibold text-gray-900">Research Database</h1>
         <p className="text-[10px] text-gray-500 mt-1">No raw files are shared here. Views are simulated.</p>
-        <p className="text-xs text-gray-500">Browse patient-shared records. Ask or filter to find similar cases</p>
+        <p className="text-xs text-gray-500">Browse patient-shared records for research purposes</p>
       </div>
 
       {/* Search Bar */}
@@ -94,7 +113,7 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
           {searchResults.map((caseData, index) => (
             <div
               key={caseData.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center space-x-3">
                 <span className="text-lg">{caseData.mriThumbnail}</span>
@@ -106,15 +125,13 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-semibold text-blue-600">${caseData.price}</span>
-                <button
-                  onClick={() => handleViewCase(caseData)}
-                  className="text-xs text-blue-600 hover:text-blue-800"
-                >
-                  View
-                </button>
-              </div>
+              <button
+                onClick={() => handleViewCase(caseData)}
+                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Eye className="w-3 h-3" />
+                <span>View</span>
+              </button>
             </div>
           ))}
         </div>
@@ -127,54 +144,125 @@ const DoctorViewScreen = ({ onViewCase, sharedFiles = [] }) => {
         </div>
       </div>
 
-      {/* Payment Animation */}
+      {/* File Preview Modal */}
       <AnimatePresence>
-        {showPaymentAnimation && (
+        {selectedFile && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed inset-0 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           >
-            <div className="bg-white rounded-2xl p-8 shadow-2xl border-4 border-money-green">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="text-center"
-              >
-                <div className="w-16 h-16 bg-money-green rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl text-white">💰</span>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl w-full max-w-sm max-h-[80vh] overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold">File Preview</h3>
+                <button
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setShowAIChat(false);
+                    setAiMessages([]);
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+                {/* File Icon */}
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <span className="text-2xl">{selectedFile.mriThumbnail}</span>
+                  </div>
+                  <h4 className="font-semibold text-gray-900">{selectedFile.condition}</h4>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Payment Received!</h3>
-                <p className="text-money-green text-2xl font-bold">+$1.00</p>
-                <p className="text-sm text-gray-600 mt-2">Added to your balance</p>
-              </motion.div>
-            </div>
+
+                {/* File Details */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600">Type:</span>
+                    <span className="font-medium">{selectedFile.type}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600">Patient:</span>
+                    <span className="font-medium">{selectedFile.age}y, {selectedFile.gender}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600">Date:</span>
+                    <span className="font-medium">{selectedFile.fullData?.date || 'Recent'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Hash className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600">Size:</span>
+                    <span className="font-medium">{selectedFile.fullData?.size || '—'}</span>
+                  </div>
+                </div>
+
+                {/* AI Chat Toggle */}
+                <div className="pt-4 border-t">
+                  <button
+                    onClick={() => setShowAIChat(!showAIChat)}
+                    className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>{showAIChat ? 'Hide' : 'Ask AI about this file'}</span>
+                  </button>
+                </div>
+
+                {/* AI Chat */}
+                {showAIChat && (
+                  <div className="mt-4 space-y-3">
+                    <div className="text-sm font-medium text-gray-700">AI Assistant</div>
+                    <div className="bg-gray-50 rounded-lg p-3 max-h-32 overflow-y-auto">
+                      {aiMessages.length === 0 ? (
+                        <p className="text-sm text-gray-500">Ask me anything about this file...</p>
+                      ) : (
+                        aiMessages.map((msg, idx) => (
+                          <div key={idx} className={`mb-2 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
+                            <div className={`inline-block p-2 rounded text-xs ${
+                              msg.type === 'user' 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-white text-gray-800'
+                            }`}>
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        value={aiInput}
+                        onChange={(e) => setAiInput(e.target.value)}
+                        placeholder="Ask about this file..."
+                        className="flex-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onKeyPress={(e) => e.key === 'Enter' && handleAISend()}
+                      />
+                      <button
+                        onClick={handleAISend}
+                        className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-        className="px-6 mt-6"
-      >
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Your Balance</p>
-              <p className="text-2xl font-bold text-money-green">$—</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Research Earnings</p>
-              <p className="text-lg font-semibold text-trust-blue">+$3.00</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };

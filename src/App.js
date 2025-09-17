@@ -143,14 +143,14 @@ function App() {
   };
 
   const handleDoctorViewCase = (caseData) => {
-    // Doctors do NOT trigger payouts. They can only view files shared to them by the patient.
+    // Doctors can view research files without any payment involved
     addAuditEvent({
       actor: 'Doctor',
-      action: 'Viewed Case',
+      action: 'Viewed Research File',
       scope: caseData.condition,
-      details: 'No payout (doctor view of patient-shared data)'
+      details: `File type: ${caseData.type}, Patient: ${caseData.age}y ${caseData.gender}`
     });
-    addToast('Doctor view recorded (no payout)', 'info');
+    addToast('Research file accessed', 'info');
   };
 
   const handlePharmaRequestDataset = (dataset) => {
