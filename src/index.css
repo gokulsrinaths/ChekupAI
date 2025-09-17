@@ -56,6 +56,8 @@ body {
   position: relative;
   overflow-x: hidden;
   margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Ensure the app is centered on larger screens */
@@ -93,6 +95,7 @@ body {
   z-index: 50 !important;
   width: 100% !important;
   max-width: 375px !important;
+  margin: 0 auto !important;
 }
 
 .top-bar {
@@ -103,6 +106,7 @@ body {
   width: 100%;
   max-width: 375px;
   z-index: 30;
+  margin: 0 auto;
 }
 
 /* Custom scrollbar */
