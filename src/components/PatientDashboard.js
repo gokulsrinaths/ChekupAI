@@ -65,12 +65,17 @@ const PatientDashboard = ({ user, onNavigate }) => {
             <h1 className="text-2xl font-bold text-gray-900">Health Dashboard</h1>
             <p className="text-sm text-gray-600">Welcome back, {currentProfileData.name}</p>
           </div>
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
-          >
-            <span className="text-white text-lg">{currentProfileData.avatar}</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            {/* Family/Profile Switcher */}
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <span className="text-lg">{currentProfileData.avatar}</span>
+              <span className="text-sm font-medium text-gray-700">{currentProfileData.name}</span>
+              <span className="text-xs text-gray-500">▼</span>
+            </button>
+          </div>
         </div>
       </div>
 

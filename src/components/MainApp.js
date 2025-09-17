@@ -7,6 +7,7 @@ import OnboardingScreen from './OnboardingScreen';
 import DashboardScreen from './DashboardScreen';
 import PatientDashboard from './PatientDashboard';
 import EnhancedFilesScreen from './EnhancedFilesScreen';
+import FilesScreen from './FilesScreen';
 import WalletScreen from './WalletScreen';
 import PointsRewardsScreen from './PointsRewardsScreen';
 import SettingsScreen from './SettingsScreen';
@@ -130,7 +131,7 @@ const MainApp = () => {
       case 'doctor':
         return <DoctorViewScreen onViewCase={handleDoctorViewCase} sharedFiles={userData.files} />;
       case 'files':
-        return <EnhancedFilesScreen />;
+        return <FilesScreen />;
       case 'pharma':
         return <PharmaViewScreen 
           onRequestDataset={handlePharmaRequestDataset}

@@ -6,7 +6,7 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
   const getNavItems = () => {
   const baseItems = [
     { id: 'dashboard', label: 'Home', icon: Home, screen: 'dashboard' },
-    { id: 'family', label: 'Family', icon: Users, screen: 'family' },
+    { id: 'files', label: 'Files', icon: FolderClosed, screen: 'files' },
     { id: 'upload', label: 'Upload', icon: Upload, screen: 'upload' },
     { id: 'points', label: 'Points', icon: Award, screen: 'points' },
     { id: 'settings', label: 'Settings', icon: Settings, screen: 'settings' }
