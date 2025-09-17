@@ -83,30 +83,42 @@ export class AIService {
     }
   }
 
-  // Call Llama API with fallback
+  // Call Llama API with the correct format
   static async callLlamaAPI(prompt, fileContent = null) {
     try {
-      // Try the actual Llama API first
-      const response = await fetch('https://api.llama-api.com/analyze', {
+      const messages = [
+        {
+          role: "system",
+          content: "You are a medical AI assistant. Analyze medical documents and provide helpful, accurate information. Always recommend consulting with healthcare professionals for medical advice."
+        },
+        {
+          role: "user",
+          content: fileContent ? `${prompt}\n\nDocument content:\n${fileContent}` : prompt
+        }
+      ];
+
+      const response = await fetch('https://api.llama.com/compat/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_LLAMA_API_KEY || 'demo-key'}`
+          'Authorization': `Bearer ${process.env.REACT_APP_LLAMA_API_KEY || 'your-api-key-here'}`
         },
         body: JSON.stringify({
-          prompt: prompt,
-          file_content: fileContent,
-          max_tokens: 500,
-          temperature: 0.7
+          messages: messages,
+          model: "Llama-4-Maverick-17B-128E-Instruct-FP8",
+          temperature: 0.6,
+          max_completion_tokens: 2048,
+          top_p: 0.9,
+          frequency_penalty: 1
         })
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        throw new Error(`Llama API error: ${response.status}`);
       }
 
       const result = await response.json();
-      return result.response || result.analysis || result.text || 'Analysis completed.';
+      return result.choices[0].message.content;
     } catch (error) {
       console.error('Llama API error:', error);
       
