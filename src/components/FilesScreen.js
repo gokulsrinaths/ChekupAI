@@ -18,9 +18,56 @@ const FilesScreen = () => {
   const aiLogRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // No mock files - only real uploaded files
+    // Sample mock files for demo purposes
+    const sampleFiles = [
+      {
+        id: 'sample-1',
+        user_id: 'demo-user',
+        file_path: 'sample/blood_test_2024.pdf',
+        file_name: 'Blood_Test_Results_2024-01-15.pdf',
+        file_type: 'Document',
+        file_size: '2.3 MB',
+        status: 'private',
+        icon: '🩸',
+        earnings: 0,
+        description: 'Complete blood count and metabolic panel',
+        content: 'Complete Blood Count Results:\n\nWhite Blood Cells: 7.2 K/μL (Normal: 4.5-11.0)\nRed Blood Cells: 4.8 M/μL (Normal: 4.0-5.2)\nHemoglobin: 14.2 g/dL (Normal: 12.0-15.5)\nHematocrit: 42.1% (Normal: 36-46)\nPlatelets: 285 K/μL (Normal: 150-450)\n\nMetabolic Panel:\nGlucose: 95 mg/dL (Normal: 70-100)\nCholesterol: 180 mg/dL (Normal: <200)\nHDL: 45 mg/dL (Normal: >40)\nLDL: 120 mg/dL (Normal: <100)\nTriglycerides: 150 mg/dL (Normal: <150)',
+        ai_analyzed: true,
+        uploaded_at: '2024-01-15T10:30:00Z'
+      },
+      {
+        id: 'sample-2',
+        user_id: 'demo-user',
+        file_path: 'sample/chest_xray_2024.pdf',
+        file_name: 'Chest_XRay_2024-01-10.pdf',
+        file_type: 'Imaging',
+        file_size: '1.8 MB',
+        status: 'private',
+        icon: '🖼️',
+        earnings: 0,
+        description: 'Chest X-ray examination',
+        content: 'Chest X-Ray Report:\n\nClinical History: Routine screening\n\nFindings:\n- Heart size and contour are normal\n- Lungs are clear bilaterally\n- No acute pulmonary abnormalities\n- Bony structures appear intact\n- No pleural effusion\n\nImpression:\n- Normal chest X-ray\n- No acute findings\n\nRecommendations:\n- Continue routine follow-up as clinically indicated',
+        ai_analyzed: true,
+        uploaded_at: '2024-01-10T14:20:00Z'
+      },
+      {
+        id: 'sample-3',
+        user_id: 'demo-user',
+        file_path: 'sample/ecg_report_2024.pdf',
+        file_name: 'ECG_Report_2024-01-08.pdf',
+        file_type: 'Cardiac',
+        file_size: '1.2 MB',
+        status: 'private',
+        icon: '❤️',
+        earnings: 0,
+        description: 'Electrocardiogram results',
+        content: 'Electrocardiogram Report:\n\nPatient: Demo User\nDate: January 8, 2024\n\nHeart Rate: 72 BPM (Normal: 60-100)\nRhythm: Normal sinus rhythm\nPR Interval: 0.16 seconds (Normal: 0.12-0.20)\nQRS Duration: 0.08 seconds (Normal: 0.06-0.10)\nQT Interval: 0.40 seconds (Normal: 0.36-0.44)\n\nInterpretation:\n- Normal sinus rhythm\n- No acute ST-T wave changes\n- No evidence of arrhythmia\n- Normal intervals and morphology\n\nClinical Correlation:\n- ECG appears normal\n- No immediate cardiac concerns\n- Follow-up as clinically indicated',
+        ai_analyzed: true,
+        uploaded_at: '2024-01-08T09:15:00Z'
+      }
+    ];
 
-  // Load files from Supabase only
+    // Load files from Supabase and combine with sample files
   const loadFiles = useCallback(async () => {
     try {
       let uploadedFiles = [];
@@ -30,10 +77,12 @@ const FilesScreen = () => {
         uploadedFiles = data || [];
       }
       
-      setFiles(uploadedFiles);
+      // Combine sample files with uploaded files
+      setFiles([...sampleFiles, ...uploadedFiles]);
     } catch (error) {
       console.error('Error loading files:', error);
-      setFiles([]);
+      // Still show sample files even if database fails
+      setFiles(sampleFiles);
     }
   }, [user?.id]);
 
@@ -215,25 +264,31 @@ const FilesScreen = () => {
     }
   };
 
-  const handleDeleteFile = async (fileId) => {
-    if (!window.confirm('Are you sure you want to delete this file?')) return;
-    
-    try {
-      await database.deleteFile(fileId);
-      await database.addAuditLog({
-        user_id: user.id,
-        actor: 'Patient',
-        action: 'File Deleted',
-        scope: 'File Management',
-        details: `File ID: ${fileId} deleted`
-      });
-      loadFiles();
-      setShowDetail(false);
-      setSelectedFile(null);
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    }
-  };
+    const handleDeleteFile = async (fileId) => {
+      // Prevent deletion of sample files
+      if (fileId.startsWith('sample-')) {
+        alert('Sample files cannot be deleted');
+        return;
+      }
+      
+      if (!window.confirm('Are you sure you want to delete this file?')) return;
+      
+      try {
+        await database.deleteFile(fileId);
+        await database.addAuditLog({
+          user_id: user.id,
+          actor: 'Patient',
+          action: 'File Deleted',
+          scope: 'File Management',
+          details: `File ID: ${fileId} deleted`
+        });
+        loadFiles();
+        setShowDetail(false);
+        setSelectedFile(null);
+      } catch (error) {
+        console.error('Error deleting file:', error);
+      }
+    };
 
   useEffect(() => {
     if (showAI && aiInputRef.current) {
@@ -295,7 +350,13 @@ const FilesScreen = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
                       <h3 className="font-semibold text-gray-900 text-sm truncate">{file.file_name}</h3>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Uploaded</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        file.id.startsWith('sample-') 
+                          ? 'bg-blue-100 text-blue-700' 
+                          : 'bg-green-100 text-green-700'
+                      }`}>
+                        {file.id.startsWith('sample-') ? 'Sample' : 'Uploaded'}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-600">{file.file_type} • {file.file_size || '—'}</p>
                     <p className="text-xs text-gray-500">{new Date(file.uploaded_at).toLocaleDateString()}</p>
@@ -375,12 +436,14 @@ const FilesScreen = () => {
                   <Sparkles className="w-4 h-4" />
                   <span>{showAI ? 'Hide AI Chat' : 'Ask AI about this file'}</span>
                 </button>
+                {!selectedFile.id.startsWith('sample-') && (
                   <button
                     onClick={() => handleDeleteFile(selectedFile.id)}
                     className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
+                )}
               </div>
 
               {/* AI Chat */}
