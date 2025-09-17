@@ -1,0 +1,28 @@
+[
+  { "id": 201, "name": "MRI Brain", "type": "Imaging", "status": "private", "icon": "🧠", "date": "2025-08-29", "size": "110MB", "earnings": 0 },
+  { "id": 202, "name": "CT Chest", "type": "Imaging", "status": "shared", "icon": "🫁", "date": "2025-08-27", "size": "210MB", "earnings": 2.5 },
+  { "id": 203, "name": "Blood Panel", "type": "Lab", "status": "shared", "icon": "🩸", "date": "2025-08-22", "size": "2MB", "earnings": 3.0 },
+  { "id": 204, "name": "Genetic Report", "type": "Genomics", "status": "private", "icon": "🧬", "date": "2025-08-15", "size": "75MB", "earnings": 0 },
+  { "id": 205, "name": "EHR Notes - Neuro", "type": "Notes", "status": "earned", "icon": "📋", "date": "2025-08-10", "size": "1.1MB", "earnings": 1.5 },
+  { "id": 206, "name": "X-Ray Knee", "type": "Imaging", "status": "shared", "icon": "🦵", "date": "2025-08-08", "size": "14MB", "earnings": 0.75 },
+  { "id": 207, "name": "ECG 12-lead", "type": "Cardio", "status": "earned", "icon": "❤️", "date": "2025-08-02", "size": "9MB", "earnings": 1.8 },
+  { "id": 208, "name": "Allergy Profile", "type": "Lab", "status": "private", "icon": "🌿", "date": "2025-07-30", "size": "1MB", "earnings": 0 },
+  { "id": 209, "name": "Medication List", "type": "Notes", "status": "shared", "icon": "💊", "date": "2025-07-28", "size": "0.5MB", "earnings": 1.1 },
+  { "id": 210, "name": "Ultrasound Abdomen", "type": "Imaging", "status": "private", "icon": "🫃", "date": "2025-07-20", "size": "65MB", "earnings": 0 },
+  { "id": 211, "name": "Holter 24h", "type": "Cardio", "status": "shared", "icon": "⌚", "date": "2025-07-12", "size": "140MB", "earnings": 3.25 },
+  { "id": 212, "name": "EEG Study", "type": "Neuro", "status": "private", "icon": "⚡", "date": "2025-07-05", "size": "52MB", "earnings": 0 },
+  { "id": 213, "name": "Pathology Report", "type": "Pathology", "status": "shared", "icon": "🧫", "date": "2025-07-02", "size": "3MB", "earnings": 4.25 },
+  { "id": 214, "name": "Mammogram", "type": "Imaging", "status": "shared", "icon": "🎀", "date": "2025-06-28", "size": "72MB", "earnings": 2.0 },
+  { "id": 215, "name": "Colonoscopy Video", "type": "Imaging", "status": "private", "icon": "📹", "date": "2025-06-20", "size": "480MB", "earnings": 0 },
+  { "id": 216, "name": "HbA1c Trend", "type": "Lab", "status": "earned", "icon": "📈", "date": "2025-06-10", "size": "0.9MB", "earnings": 1.0 },
+  { "id": 217, "name": "X-Ray Wrist", "type": "Imaging", "status": "private", "icon": "✋", "date": "2025-06-05", "size": "11MB", "earnings": 0 },
+  { "id": 218, "name": "Stress Test", "type": "Cardio", "status": "shared", "icon": "🏃", "date": "2025-06-01", "size": "22MB", "earnings": 1.6 },
+  { "id": 219, "name": "Spirometry", "type": "Respiratory", "status": "earned", "icon": "🌬️", "date": "2025-05-28", "size": "1MB", "earnings": 1.2 },
+  { "id": 220, "name": "DICOM Stack - Brain", "type": "Imaging", "status": "private", "icon": "🧠", "date": "2025-05-20", "size": "1.2GB", "earnings": 0 },
+  { "id": 221, "name": "CBC Report", "type": "Lab", "status": "shared", "icon": "🩸", "date": "2025-05-15", "size": "0.7MB", "earnings": 0.9 },
+  { "id": 222, "name": "EHR Notes - Cardio", "type": "Notes", "status": "earned", "icon": "📋", "date": "2025-05-10", "size": "1.3MB", "earnings": 2.3 },
+  { "id": 223, "name": "DEXA Scan", "type": "Imaging", "status": "private", "icon": "🦴", "date": "2025-05-05", "size": "38MB", "earnings": 0 },
+  { "id": 224, "name": "Glucose Log", "type": "Lab", "status": "shared", "icon": "🧪", "date": "2025-05-01", "size": "0.6MB", "earnings": 0.8 },
+  { "id": 225, "name": "EKG Snapshot", "type": "Cardio", "status": "private", "icon": "🫀", "date": "2025-04-28", "size": "3MB", "earnings": 0 }
+]
+
