@@ -244,6 +244,9 @@ export class AIService {
   // Call Llama API with the correct format
   static async callLlamaAPI(prompt, fileContent = null) {
     try {
+      console.log('Calling Llama API with prompt:', prompt);
+      console.log('File content length:', fileContent ? fileContent.length : 0);
+
       const messages = [
         {
           role: "system",
@@ -275,6 +278,7 @@ Remember: You are analyzing real medical documents, so be thorough, accurate, an
         }
       ];
 
+      console.log('Sending request to Llama API...');
       const response = await fetch('https://api.llama.com/compat/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -291,16 +295,30 @@ Remember: You are analyzing real medical documents, so be thorough, accurate, an
         })
       });
 
+      console.log('Llama API response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Llama API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Llama API error response:', errorText);
+        throw new Error(`Llama API error: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
-      return result.choices[0].message.content;
+      console.log('Llama API response:', result);
+      
+      if (result.choices && result.choices[0] && result.choices[0].message) {
+        const aiResponse = result.choices[0].message.content;
+        console.log('AI Response:', aiResponse);
+        return aiResponse;
+      } else {
+        console.error('Unexpected response format:', result);
+        throw new Error('Unexpected response format from Llama API');
+      }
     } catch (error) {
       console.error('Llama API error:', error);
       
       // Fallback to mock responses based on file type
+      console.log('Using fallback response due to error');
       return this.getFallbackResponse(prompt, fileContent);
     }
   }
