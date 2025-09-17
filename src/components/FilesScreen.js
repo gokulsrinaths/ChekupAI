@@ -218,34 +218,49 @@ const FilesScreen = () => {
   const handleAIChatSend = async () => {
     if (!aiInput.trim() || !selectedFile) return;
 
+    console.log('AI Chat: Sending message:', aiInput.trim());
+    console.log('AI Chat: Selected file:', selectedFile);
+
     const userMessage = { sender: 'user', text: aiInput.trim(), timestamp: new Date() };
     setAiMessages(prev => [...prev, userMessage]);
 
     // Only save to database if it's a real uploaded file and user is logged in
     if (user && !selectedFile.id.startsWith('mock-')) {
-      await database.addAIChat({
-        user_id: user.id,
-        file_id: selectedFile.id,
-        message: aiInput.trim(),
-        sender: 'user'
-      });
+      try {
+        await database.addAIChat({
+          user_id: user.id,
+          file_id: selectedFile.id,
+          message: aiInput.trim(),
+          sender: 'user'
+        });
+      } catch (error) {
+        console.log('Database save failed:', error);
+      }
     }
 
+    const currentInput = aiInput.trim();
     setAiInput('');
 
     try {
-      const aiResponseText = await AIService.answerHealthQuestion(aiInput.trim(), selectedFile.content);
+      console.log('AI Chat: Calling AIService.answerHealthQuestion');
+      const aiResponseText = await AIService.answerHealthQuestion(currentInput, selectedFile.content);
+      console.log('AI Chat: Received response:', aiResponseText);
+      
       const aiMessage = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
       setAiMessages(prev => [...prev, aiMessage]);
       
       // Only save to database if it's a real uploaded file and user is logged in
       if (user && !selectedFile.id.startsWith('mock-')) {
-        await database.addAIChat({
-          user_id: user.id,
-          file_id: selectedFile.id,
-          message: aiResponseText,
-          sender: 'ai'
-        });
+        try {
+          await database.addAIChat({
+            user_id: user.id,
+            file_id: selectedFile.id,
+            message: aiResponseText,
+            sender: 'ai'
+          });
+        } catch (error) {
+          console.log('Database save failed:', error);
+        }
       }
     } catch (error) {
       console.error('Error getting AI chat response:', error);

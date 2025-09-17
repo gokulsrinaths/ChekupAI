@@ -5,10 +5,25 @@ export class AIService {
   // Analyze file content and suggest a better name
   static async suggestFileName(fileContent, originalName, fileType) {
     try {
+      // Analyze the content to extract key information
+      const analysis = this.analyzeDocumentContent(fileContent);
+      const date = this.extractDate(fileContent) || new Date().toISOString().slice(0, 10);
+      const originalExt = originalName.split('.').pop();
+      
+      // Generate intelligent filename based on content analysis
+      let suggestedName = this.generateIntelligentFileName(analysis, fileType, date, originalExt);
+      
+      // If we have a good suggestion, use it; otherwise try AI
+      if (suggestedName && suggestedName !== originalName) {
+        return suggestedName;
+      }
+      
+      // Fallback to AI suggestion
       const prompt = `Analyze this medical document and suggest a descriptive, professional filename. 
       
       Original filename: ${originalName}
       File type: ${fileType}
+      Document content preview: ${fileContent.substring(0, 500)}...
       
       Please suggest a filename that:
       1. Describes the medical content accurately
@@ -22,25 +37,168 @@ export class AIService {
       const response = await this.callLlamaAPI(prompt, fileContent);
       
       // Clean up the response to get just the filename
-      let suggestedName = response.trim();
+      let aiSuggestedName = response.trim();
       
       // Remove any quotes or extra text
-      suggestedName = suggestedName.replace(/^["']|["']$/g, '');
-      suggestedName = suggestedName.replace(/^Suggested filename:?/i, '');
-      suggestedName = suggestedName.replace(/^Filename:?/i, '');
-      suggestedName = suggestedName.trim();
+      aiSuggestedName = aiSuggestedName.replace(/^["']|["']$/g, '');
+      aiSuggestedName = aiSuggestedName.replace(/^Suggested filename:?/i, '');
+      aiSuggestedName = aiSuggestedName.replace(/^Filename:?/i, '');
+      aiSuggestedName = aiSuggestedName.trim();
       
       // Ensure it has a proper extension
-      const originalExt = originalName.split('.').pop();
-      if (!suggestedName.includes('.')) {
-        suggestedName += `.${originalExt}`;
+      if (!aiSuggestedName.includes('.')) {
+        aiSuggestedName += `.${originalExt}`;
       }
       
-      return suggestedName || originalName;
+      return aiSuggestedName || suggestedName || originalName;
     } catch (error) {
       console.error('Error suggesting filename:', error);
-      return originalName;
+      // Fallback to intelligent naming
+      const analysis = this.analyzeDocumentContent(fileContent);
+      const date = this.extractDate(fileContent) || new Date().toISOString().slice(0, 10);
+      const originalExt = originalName.split('.').pop();
+      return this.generateIntelligentFileName(analysis, fileType, date, originalExt) || originalName;
     }
+  }
+
+  // Generate intelligent filename based on content analysis
+  static generateIntelligentFileName(analysis, fileType, date, extension) {
+    const dateStr = date.replace(/[\/\-]/g, '_');
+    
+    // Blood work files
+    if (analysis.hasBloodWork) {
+      if (/glucose|diabetes|sugar/i.test(analysis.content || '')) {
+        return `Glucose_Test_${dateStr}.${extension}`;
+      }
+      if (/cholesterol|lipid/i.test(analysis.content || '')) {
+        return `Cholesterol_Panel_${dateStr}.${extension}`;
+      }
+      if (/complete blood count|cbc/i.test(analysis.content || '')) {
+        return `Complete_Blood_Count_${dateStr}.${extension}`;
+      }
+      if (/metabolic|chemistry/i.test(analysis.content || '')) {
+        return `Metabolic_Panel_${dateStr}.${extension}`;
+      }
+      return `Blood_Test_Results_${dateStr}.${extension}`;
+    }
+    
+    // Imaging files
+    if (analysis.hasImaging) {
+      if (/mri/i.test(analysis.content || '')) {
+        if (/brain|head/i.test(analysis.content || '')) {
+          return `Brain_MRI_${dateStr}.${extension}`;
+        }
+        if (/spine|back/i.test(analysis.content || '')) {
+          return `Spine_MRI_${dateStr}.${extension}`;
+        }
+        if (/knee/i.test(analysis.content || '')) {
+          return `Knee_MRI_${dateStr}.${extension}`;
+        }
+        return `MRI_Report_${dateStr}.${extension}`;
+      }
+      if (/ct|cat scan/i.test(analysis.content || '')) {
+        if (/chest/i.test(analysis.content || '')) {
+          return `Chest_CT_${dateStr}.${extension}`;
+        }
+        if (/abdomen|abdominal/i.test(analysis.content || '')) {
+          return `Abdominal_CT_${dateStr}.${extension}`;
+        }
+        return `CT_Scan_${dateStr}.${extension}`;
+      }
+      if (/x.ray|xray/i.test(analysis.content || '')) {
+        if (/chest/i.test(analysis.content || '')) {
+          return `Chest_XRay_${dateStr}.${extension}`;
+        }
+        if (/bone|fracture/i.test(analysis.content || '')) {
+          return `Bone_XRay_${dateStr}.${extension}`;
+        }
+        return `XRay_Report_${dateStr}.${extension}`;
+      }
+      if (/ultrasound/i.test(analysis.content || '')) {
+        if (/heart|cardiac/i.test(analysis.content || '')) {
+          return `Echocardiogram_${dateStr}.${extension}`;
+        }
+        if (/abdomen/i.test(analysis.content || '')) {
+          return `Abdominal_Ultrasound_${dateStr}.${extension}`;
+        }
+        return `Ultrasound_Report_${dateStr}.${extension}`;
+      }
+      return `Medical_Imaging_${dateStr}.${extension}`;
+    }
+    
+    // Cardiac files
+    if (analysis.hasCardio) {
+      if (/ecg|ekg/i.test(analysis.content || '')) {
+        return `ECG_Report_${dateStr}.${extension}`;
+      }
+      if (/echocardiogram|echo/i.test(analysis.content || '')) {
+        return `Echocardiogram_${dateStr}.${extension}`;
+      }
+      if (/stress test/i.test(analysis.content || '')) {
+        return `Stress_Test_${dateStr}.${extension}`;
+      }
+      return `Cardiology_Report_${dateStr}.${extension}`;
+    }
+    
+    // Neurological files
+    if (analysis.hasNeuro) {
+      if (/eeg/i.test(analysis.content || '')) {
+        return `EEG_Report_${dateStr}.${extension}`;
+      }
+      if (/brain|neurological/i.test(analysis.content || '')) {
+        return `Neurological_Assessment_${dateStr}.${extension}`;
+      }
+      return `Neuro_Report_${dateStr}.${extension}`;
+    }
+    
+    // Lab results
+    if (analysis.hasLab) {
+      if (/urine/i.test(analysis.content || '')) {
+        return `Urinalysis_${dateStr}.${extension}`;
+      }
+      if (/stool|fecal/i.test(analysis.content || '')) {
+        return `Stool_Analysis_${dateStr}.${extension}`;
+      }
+      return `Lab_Results_${dateStr}.${extension}`;
+    }
+    
+    // Generic medical document
+    return `Medical_Report_${dateStr}.${extension}`;
+  }
+
+  // Analyze document content to extract key information
+  static analyzeDocumentContent(content) {
+    const analysis = {
+      type: 'unknown',
+      hasBloodWork: false,
+      hasImaging: false,
+      hasCardio: false,
+      hasNeuro: false,
+      hasLab: false,
+      content: content
+    };
+
+    if (!content) return analysis;
+
+    // Detect document type
+    if (/blood|hemoglobin|hgb|rbc|wbc|platelet|glucose|cholesterol|bun|creatinine/i.test(content)) {
+      analysis.type = 'blood_work';
+      analysis.hasBloodWork = true;
+    } else if (/mri|ct|x.ray|xray|ultrasound|scan|radiology|imaging/i.test(content)) {
+      analysis.type = 'imaging';
+      analysis.hasImaging = true;
+    } else if (/heart|cardiac|ecg|ekg|echocardiogram|blood pressure|bp/i.test(content)) {
+      analysis.type = 'cardiac';
+      analysis.hasCardio = true;
+    } else if (/brain|neurological|eeg|seizure|cognitive|neurology/i.test(content)) {
+      analysis.type = 'neurological';
+      analysis.hasNeuro = true;
+    } else if (/lab|laboratory|test|result|value|normal|abnormal/i.test(content)) {
+      analysis.type = 'lab_results';
+      analysis.hasLab = true;
+    }
+
+    return analysis;
   }
 
   // Analyze medical file content for insights
@@ -89,7 +247,27 @@ export class AIService {
       const messages = [
         {
           role: "system",
-          content: "You are a medical AI assistant. Analyze medical documents and provide helpful, accurate information. Always recommend consulting with healthcare professionals for medical advice."
+          content: `You are Dr. AI, a specialized medical AI assistant with expertise in analyzing medical documents and providing intelligent health insights. Your role is to:
+
+1. ANALYZE medical documents thoroughly and provide specific, actionable insights
+2. EXPLAIN complex medical terminology in simple, understandable language
+3. IDENTIFY key findings, values, and patterns in medical data
+4. PROVIDE context about what medical results mean for patient health
+5. HIGHLIGHT important findings that need attention
+6. SUGGEST relevant questions patients should ask their doctors
+7. ALWAYS maintain a professional, empathetic, and helpful tone
+
+Guidelines:
+- Be specific and detailed in your analysis
+- Focus on the actual content of the document provided
+- Explain medical terms and concepts clearly
+- Point out normal vs abnormal values when applicable
+- Provide context about what findings mean for health
+- Suggest appropriate follow-up actions
+- Always recommend consulting healthcare providers for medical decisions
+- Be encouraging and supportive while being informative
+
+Remember: You are analyzing real medical documents, so be thorough, accurate, and helpful.`
         },
         {
           role: "user",
@@ -101,7 +279,7 @@ export class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_LLAMA_API_KEY || 'llama-4-maverick-17b-128e-instruct-fp8'}`
+          'Authorization': `Bearer ${process.env.REACT_APP_LLAMA_API_KEY || '0huAT2H-LwfZ6prnsle77Vfy730'}`
         },
         body: JSON.stringify({
           messages: messages,

@@ -155,6 +155,9 @@ const UploadScreen = () => {
   const handleAIChatSend = async () => {
     if (!aiInput.trim() || !selectedFile) return;
 
+    console.log('Upload AI Chat: Sending message:', aiInput.trim());
+    console.log('Upload AI Chat: Selected file:', selectedFile);
+
     const userMessage = { sender: 'user', text: aiInput.trim(), timestamp: new Date() };
     setAiMessages(prev => [...prev, userMessage]);
 
@@ -172,10 +175,14 @@ const UploadScreen = () => {
       }
     }
 
+    const currentInput = aiInput.trim();
     setAiInput('');
 
     try {
-      const aiResponseText = await AIService.answerHealthQuestion(aiInput.trim(), selectedFile.content);
+      console.log('Upload AI Chat: Calling AIService.answerHealthQuestion');
+      const aiResponseText = await AIService.answerHealthQuestion(currentInput, selectedFile.content);
+      console.log('Upload AI Chat: Received response:', aiResponseText);
+      
       const aiMessage = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
       setAiMessages(prev => [...prev, aiMessage]);
       
