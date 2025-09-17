@@ -4,9 +4,19 @@ import { MessageCircle, Calendar, Bell, Camera } from 'lucide-react';
 
 const PatientDashboard = ({ user, onNavigate }) => {
   const [chatInput, setChatInput] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [currentProfile, setCurrentProfile] = useState('jane');
   const [chatMessages, setChatMessages] = useState([
     { id: 1, sender: 'ai', message: `Hi ${user?.user_metadata?.full_name || 'Jane'}, how are you feeling today?`, timestamp: new Date() }
   ]);
+
+  const profiles = [
+    { id: 'jane', name: 'Jane Doe', role: 'You', avatar: '👩', healthScore: 85, lastCheckup: '2024-01-15' },
+    { id: 'john', name: 'John Doe', role: 'Husband', avatar: '👨', healthScore: 92, lastCheckup: '2024-01-10' },
+    { id: 'emma', name: 'Emma Doe', role: 'Daughter', avatar: '👶', healthScore: 78, lastCheckup: '2024-01-20' }
+  ];
+
+  const currentProfileData = profiles.find(p => p.id === currentProfile) || profiles[0];
 
   // Removed family members - focusing on individual user experience
 
@@ -53,11 +63,14 @@ const PatientDashboard = ({ user, onNavigate }) => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Health Dashboard</h1>
-            <p className="text-sm text-gray-600">Welcome back, {user?.user_metadata?.full_name || 'Jane'}</p>
+            <p className="text-sm text-gray-600">Welcome back, {currentProfileData.name}</p>
           </div>
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-lg">👩</span>
-          </div>
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
+          >
+            <span className="text-white text-lg">{currentProfileData.avatar}</span>
+          </button>
         </div>
       </div>
 
@@ -71,7 +84,7 @@ const PatientDashboard = ({ user, onNavigate }) => {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">AI Health Assistant</h3>
-              <p className="text-sm text-gray-600">👋 Hi {user?.user_metadata?.full_name || 'Jane'}, how are you today?</p>
+              <p className="text-sm text-gray-600">👋 Hi {currentProfileData.name}, how are you today?</p>
             </div>
           </div>
 
@@ -140,6 +153,68 @@ const PatientDashboard = ({ user, onNavigate }) => {
       </div>
 
       {/* Removed old AI Health Assistant section - now integrated above */}
+
+      {/* Profile Switcher Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Switch Profile</h3>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {profiles.map(profile => (
+                <button
+                  key={profile.id}
+                  onClick={() => {
+                    setCurrentProfile(profile.id);
+                    setShowProfileModal(false);
+                    // Update chat greeting
+                    setChatMessages(prev => [
+                      ...prev,
+                      { 
+                        id: Date.now(), 
+                        sender: 'ai', 
+                        message: `Hi ${profile.name}, how are you feeling today?`, 
+                        timestamp: new Date() 
+                      }
+                    ]);
+                  }}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-xl text-left transition-all ${
+                    currentProfile === profile.id
+                      ? 'bg-blue-50 border-2 border-blue-200'
+                      : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+                  }`}
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-lg">{profile.avatar}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{profile.name}</p>
+                    <p className="text-sm text-gray-600">{profile.role}</p>
+                  </div>
+                  {currentProfile === profile.id && (
+                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Removed Recent Activities and Points sections for cleaner design */}
     </div>
