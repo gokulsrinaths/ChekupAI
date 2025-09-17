@@ -251,7 +251,7 @@ const MainApp = () => {
       )}
 
       {/* Toast Container */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };

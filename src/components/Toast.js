@@ -78,4 +78,10 @@ export const ToastContainer = ({ toasts, removeToast }) => {
   );
 };
 
+// Export addToast function for use in other components
+export const addToast = (message, type = 'info') => {
+  // This is a placeholder - the actual implementation should be in MainApp
+  console.warn('addToast called but not implemented in this context');
+};
+
 export default Toast;
