@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/ChekupAI/static/css/main.a6a4bb67.css",
-    "main.js": "/ChekupAI/static/js/main.70a83fcd.js",
+    "main.js": "/ChekupAI/static/js/main.affa1558.js",
     "static/js/878.dcdb4403.chunk.js": "/ChekupAI/static/js/878.dcdb4403.chunk.js",
     "static/js/141.9aab8af9.chunk.js": "/ChekupAI/static/js/141.9aab8af9.chunk.js",
     "static/js/77.75d7a4a7.chunk.js": "/ChekupAI/static/js/77.75d7a4a7.chunk.js",
@@ -13,7 +13,7 @@
     "static/js/921.fa73f00c.chunk.js": "/ChekupAI/static/js/921.fa73f00c.chunk.js",
     "index.html": "/ChekupAI/index.html",
     "main.a6a4bb67.css.map": "/ChekupAI/static/css/main.a6a4bb67.css.map",
-    "main.70a83fcd.js.map": "/ChekupAI/static/js/main.70a83fcd.js.map",
+    "main.affa1558.js.map": "/ChekupAI/static/js/main.affa1558.js.map",
     "878.dcdb4403.chunk.js.map": "/ChekupAI/static/js/878.dcdb4403.chunk.js.map",
     "141.9aab8af9.chunk.js.map": "/ChekupAI/static/js/141.9aab8af9.chunk.js.map",
     "77.75d7a4a7.chunk.js.map": "/ChekupAI/static/js/77.75d7a4a7.chunk.js.map",
@@ -26,6 +26,6 @@
   },
   "entrypoints": [
     "static/css/main.a6a4bb67.css",
-    "static/js/main.70a83fcd.js"
+    "static/js/main.affa1558.js"
   ]
 }
