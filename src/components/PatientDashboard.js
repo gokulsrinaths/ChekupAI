@@ -62,27 +62,27 @@ const PatientDashboard = ({ user, onNavigate }) => {
       </div>
 
       {/* AI Chatbot - Perfect Main Section */}
-      <div className="px-6 py-8">
+      <div className="px-4 py-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100"
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
         >
           {/* Chatbot Header - Perfect typography */}
-          <div className="flex items-center space-x-4 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <MessageCircle className="w-6 h-6 text-white" />
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md">
+              <MessageCircle className="w-5 h-5 text-white" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-2xl font-light text-gray-900 tracking-tight">AI Assistant</h3>
-              <p className="text-lg text-gray-500 font-light">👋 Hi {user?.user_metadata?.full_name || 'Jane'}, how are you today?</p>
+              <h3 className="text-xl font-light text-gray-900 tracking-tight">AI Assistant</h3>
+              <p className="text-sm text-gray-500 font-light">👋 Hi {user?.user_metadata?.full_name || 'Jane'}, how are you today?</p>
             </div>
           </div>
 
           {/* Chat Messages - Perfect spacing and design */}
-          <div className="bg-gray-50/50 rounded-2xl p-6 mb-6 max-h-64 overflow-y-auto scrollbar-hide">
-            <div className="space-y-4">
+          <div className="bg-gray-50/50 rounded-xl p-4 mb-4 max-h-48 overflow-y-auto scrollbar-hide">
+            <div className="space-y-3">
               {chatMessages.map((msg, index) => (
                 <motion.div 
                   key={msg.id}
@@ -91,9 +91,9 @@ const PatientDashboard = ({ user, onNavigate }) => {
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  <div className={`max-w-[80%] px-3 py-2 rounded-xl text-sm leading-relaxed ${
                     msg.sender === 'user' 
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' 
                       : 'bg-white text-gray-800 border border-gray-200 shadow-sm'
                   }`}>
                     {msg.message}
@@ -104,20 +104,20 @@ const PatientDashboard = ({ user, onNavigate }) => {
           </div>
 
           {/* Chat Input - Perfect interaction design */}
-          <div className="flex space-x-3">
+          <div className="flex space-x-2">
             <input
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleChatSend()}
               placeholder="Ask about your health..."
-              className="flex-1 px-6 py-4 border border-gray-200 rounded-2xl text-base focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 placeholder-gray-400"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 placeholder-gray-400"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleChatSend}
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 font-medium shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 font-medium shadow-md"
             >
               Send
             </motion.button>
@@ -126,14 +126,14 @@ const PatientDashboard = ({ user, onNavigate }) => {
       </div>
 
       {/* Quick Actions - Perfect design */}
-      <div className="px-6 py-4">
+      <div className="px-4 py-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
         >
-          <h2 className="text-xl font-light text-gray-900 mb-6 tracking-tight">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <h2 className="text-lg font-light text-gray-900 mb-4 tracking-tight">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-3">
             {quickActions.map((action, index) => (
               <motion.button
                 key={action.id}
@@ -143,28 +143,28 @@ const PatientDashboard = ({ user, onNavigate }) => {
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={action.action}
-                className={`group p-6 rounded-2xl bg-white shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 ${
+                className={`group p-4 rounded-xl bg-white shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 ${
                   action.color === 'blue' ? 'hover:bg-blue-50/50' :
                   action.color === 'green' ? 'hover:bg-green-50/50' :
                   action.color === 'purple' ? 'hover:bg-purple-50/50' :
                   'hover:bg-orange-50/50'
                 }`}
               >
-                <div className="flex flex-col items-center space-y-3">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 ${
+                <div className="flex flex-col items-center space-y-2">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 ${
                     action.color === 'blue' ? 'bg-blue-100 group-hover:bg-blue-200' :
                     action.color === 'green' ? 'bg-green-100 group-hover:bg-green-200' :
                     action.color === 'purple' ? 'bg-purple-100 group-hover:bg-purple-200' :
                     'bg-orange-100 group-hover:bg-orange-200'
                   }`}>
-                    <action.icon className={`w-6 h-6 ${
+                    <action.icon className={`w-5 h-5 ${
                       action.color === 'blue' ? 'text-blue-600' :
                       action.color === 'green' ? 'text-green-600' :
                       action.color === 'purple' ? 'text-purple-600' :
                       'text-orange-600'
                     }`} />
                   </div>
-                  <p className="text-sm font-medium text-gray-900 text-center leading-tight">{action.title}</p>
+                  <p className="text-xs font-medium text-gray-900 text-center leading-tight">{action.title}</p>
                 </div>
               </motion.button>
             ))}
