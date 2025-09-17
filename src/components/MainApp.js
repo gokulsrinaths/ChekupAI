@@ -8,6 +8,7 @@ import DashboardScreen from './DashboardScreen';
 import PatientDashboard from './PatientDashboard';
 import EnhancedFilesScreen from './EnhancedFilesScreen';
 import FilesScreen from './FilesScreen';
+import UploadScreen from './UploadScreen';
 import WalletScreen from './WalletScreen';
 import PointsRewardsScreen from './PointsRewardsScreen';
 import SettingsScreen from './SettingsScreen';
@@ -145,11 +146,7 @@ const MainApp = () => {
       case 'family':
         return <FamilyDashboard />;
       case 'upload':
-        return <DocumentUpload onUpload={(files) => {
-          const newFiles = files.map(f => ({ ...f, id: Date.now() + Math.random() }));
-          setUserData(prev => ({ ...prev, files: [...prev.files, ...newFiles] }));
-          addToast('Documents uploaded successfully', 'success');
-        }} />;
+        return <UploadScreen />;
       case 'chatbot':
         return <HealthChatbot />;
       case 'audit-log':

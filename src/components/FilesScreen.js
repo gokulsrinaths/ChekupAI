@@ -18,23 +18,88 @@ const FilesScreen = () => {
   const aiLogRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Load files from Supabase
+  // Mock files for demonstration
+  const mockFiles = [
+    {
+      id: 'mock-1',
+      file_name: 'Blood_Test_Results_2024-01-15.pdf',
+      file_type: 'Document',
+      file_size: '2.3 MB',
+      icon: '📄',
+      status: 'private',
+      uploaded_at: '2024-01-15T10:30:00Z',
+      content: 'Complete Blood Count (CBC) results showing hemoglobin levels, white blood cell count, and platelet count. All values within normal range.',
+      description: 'Annual blood work results'
+    },
+    {
+      id: 'mock-2',
+      file_name: 'Chest_XRay_2024-01-10.jpg',
+      file_type: 'Imaging',
+      file_size: '1.8 MB',
+      icon: '🖼️',
+      status: 'private',
+      uploaded_at: '2024-01-10T14:20:00Z',
+      content: 'Chest X-ray showing clear lung fields, normal heart size, and no acute abnormalities. No signs of pneumonia or other respiratory issues.',
+      description: 'Routine chest X-ray examination'
+    },
+    {
+      id: 'mock-3',
+      file_name: 'ECG_Report_2024-01-08.pdf',
+      file_type: 'Document',
+      file_size: '1.2 MB',
+      icon: '📄',
+      status: 'private',
+      uploaded_at: '2024-01-08T09:15:00Z',
+      content: 'Electrocardiogram showing normal sinus rhythm, heart rate 72 bpm, no arrhythmias detected. All intervals within normal limits.',
+      description: 'Electrocardiogram examination'
+    },
+    {
+      id: 'mock-4',
+      file_name: 'MRI_Brain_2024-01-05.dcm',
+      file_type: 'DICOM',
+      file_size: '45.2 MB',
+      icon: '🏥',
+      status: 'private',
+      uploaded_at: '2024-01-05T16:45:00Z',
+      content: 'Brain MRI showing normal brain anatomy, no masses or lesions detected. Ventricular system appears normal. No signs of acute pathology.',
+      description: 'Brain MRI scan for headache evaluation'
+    },
+    {
+      id: 'mock-5',
+      file_name: 'Lab_Results_2024-01-03.xlsx',
+      file_type: 'Spreadsheet',
+      file_size: '856 KB',
+      icon: '📊',
+      status: 'private',
+      uploaded_at: '2024-01-03T11:30:00Z',
+      content: 'Comprehensive metabolic panel including glucose, cholesterol, liver function tests, and kidney function markers. Most values within normal range.',
+      description: 'Comprehensive lab panel results'
+    }
+  ];
+
+  // Load files from Supabase and combine with mock files
   const loadFiles = useCallback(async () => {
-    if (!user) return;
     try {
-      const { data, error } = await database.getUserFiles(user.id);
-      if (error) throw error;
-      setFiles(data || []);
+      let uploadedFiles = [];
+      if (user) {
+        const { data, error } = await database.getUserFiles(user.id);
+        if (error) throw error;
+        uploadedFiles = data || [];
+      }
+      
+      // Combine mock files with uploaded files, putting uploaded files first
+      const allFiles = [...uploadedFiles, ...mockFiles];
+      setFiles(allFiles);
     } catch (error) {
       console.error('Error loading files:', error);
+      // If there's an error, just show mock files
+      setFiles(mockFiles);
     }
   }, [user?.id]);
 
   useEffect(() => {
-    if (user) {
-      loadFiles();
-    }
-  }, [user, loadFiles]);
+    loadFiles();
+  }, [loadFiles]);
 
   const getFileType = (filename) => {
     const ext = filename.split('.').pop().toLowerCase();
@@ -85,16 +150,11 @@ const FilesScreen = () => {
         // Get AI-suggested filename
         const suggestedName = await AIService.suggestFileName(content, file.name, getFileType(file.name));
         
-        // Upload file to Supabase storage
-        const filePath = `${user.id}/${Date.now()}-${suggestedName}`;
-        const { error: uploadError } = await storage.uploadFile(file, user.id, filePath);
-        
-        if (uploadError) throw uploadError;
-
-        // Create file record in database
+        // Create file record for demo (without Supabase)
         const fileData = {
-          user_id: user.id,
-          file_path: filePath,
+          id: `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          user_id: user?.id || 'demo-user',
+          file_path: `demo/${suggestedName}`,
           file_name: suggestedName,
           file_type: getFileType(file.name),
           file_size: formatFileSize(file.size),
@@ -103,22 +163,44 @@ const FilesScreen = () => {
           earnings: 0,
           description: '',
           content: content,
-          ai_analyzed: true
+          ai_analyzed: true,
+          uploaded_at: new Date().toISOString()
         };
 
-        const { error: dbError } = await database.addFile(fileData);
-        if (dbError) throw dbError;
+        // Add to local state immediately
+        setFiles(prev => [fileData, ...prev]);
 
-        // Add audit log
-        await database.addAuditLog({
-          user_id: user.id,
-          actor: 'Patient',
-          action: 'File Uploaded',
-          scope: fileData.file_type,
-          details: `File: ${fileData.file_name}, Size: ${fileData.file_size}`
-        });
+        // Try to save to Supabase if user is logged in
+        if (user) {
+          try {
+            const filePath = `${user.id}/${Date.now()}-${suggestedName}`;
+            const { error: uploadError } = await storage.uploadFile(file, user.id, filePath);
+            if (!uploadError) {
+              fileData.file_path = filePath;
+            }
+          } catch (error) {
+            console.log('Supabase upload failed, using local storage:', error);
+          }
+
+          try {
+            await database.addFile(fileData);
+          } catch (error) {
+            console.log('Database save failed, using local storage:', error);
+          }
+
+          try {
+            await database.addAuditLog({
+              user_id: user.id,
+              actor: 'Patient',
+              action: 'File Uploaded',
+              scope: fileData.file_type,
+              details: `File: ${fileData.file_name}, Size: ${fileData.file_size}`
+            });
+          } catch (error) {
+            console.log('Audit log failed:', error);
+          }
+        }
       }
-      loadFiles(); // Reload files after successful upload
     } catch (error) {
       console.error('File upload process error:', error);
     } finally {
@@ -134,16 +216,20 @@ const FilesScreen = () => {
   };
 
   const handleAIChatSend = async () => {
-    if (!aiInput.trim() || !selectedFile || !user) return;
+    if (!aiInput.trim() || !selectedFile) return;
 
     const userMessage = { sender: 'user', text: aiInput.trim(), timestamp: new Date() };
     setAiMessages(prev => [...prev, userMessage]);
-    await database.addAIChat({
-      user_id: user.id,
-      file_id: selectedFile.id,
-      message: aiInput.trim(),
-      sender: 'user'
-    });
+
+    // Only save to database if it's a real uploaded file and user is logged in
+    if (user && !selectedFile.id.startsWith('mock-')) {
+      await database.addAIChat({
+        user_id: user.id,
+        file_id: selectedFile.id,
+        message: aiInput.trim(),
+        sender: 'user'
+      });
+    }
 
     setAiInput('');
 
@@ -151,12 +237,16 @@ const FilesScreen = () => {
       const aiResponseText = await AIService.answerHealthQuestion(aiInput.trim(), selectedFile.content);
       const aiMessage = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
       setAiMessages(prev => [...prev, aiMessage]);
-      await database.addAIChat({
-        user_id: user.id,
-        file_id: selectedFile.id,
-        message: aiResponseText,
-        sender: 'ai'
-      });
+      
+      // Only save to database if it's a real uploaded file and user is logged in
+      if (user && !selectedFile.id.startsWith('mock-')) {
+        await database.addAIChat({
+          user_id: user.id,
+          file_id: selectedFile.id,
+          message: aiResponseText,
+          sender: 'ai'
+        });
+      }
     } catch (error) {
       console.error('Error getting AI chat response:', error);
       const errorMessage = { sender: 'ai', text: 'Sorry, I could not process your request at this time.', timestamp: new Date() };
@@ -165,6 +255,12 @@ const FilesScreen = () => {
   };
 
   const handleDeleteFile = async (fileId) => {
+    // Don't allow deleting mock files
+    if (fileId.startsWith('mock-')) {
+      alert('Cannot delete sample files');
+      return;
+    }
+    
     if (!window.confirm('Are you sure you want to delete this file?')) return;
     
     try {
@@ -226,22 +322,8 @@ const FilesScreen = () => {
         </div>
       </div>
 
-      {/* Files List */}
-      <div className="px-4 py-4">
-        {files.length === 0 ? (
-          <div className="text-center py-12">
-            <Upload className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No files yet</h3>
-            <p className="text-gray-600 mb-4">Upload your first medical document to get started</p>
-            <label
-              htmlFor="file-upload"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Choose Files
-            </label>
-          </div>
-        ) : (
+        {/* Files List */}
+        <div className="px-4 py-4">
           <div className="grid grid-cols-1 gap-3">
             {files.map((file) => (
               <motion.div
@@ -256,7 +338,14 @@ const FilesScreen = () => {
                     <span className="text-2xl">{file.icon}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 text-sm truncate">{file.file_name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-semibold text-gray-900 text-sm truncate">{file.file_name}</h3>
+                      {file.id.startsWith('mock-') ? (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Sample</span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Uploaded</span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-600">{file.file_type} • {file.file_size || '—'}</p>
                     <p className="text-xs text-gray-500">{new Date(file.uploaded_at).toLocaleDateString()}</p>
                   </div>
@@ -290,8 +379,7 @@ const FilesScreen = () => {
               </motion.div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
 
       {/* File Detail Modal with AI Chat */}
       <AnimatePresence>
@@ -336,12 +424,14 @@ const FilesScreen = () => {
                   <Sparkles className="w-4 h-4" />
                   <span>{showAI ? 'Hide AI Chat' : 'Ask AI about this file'}</span>
                 </button>
-                <button
-                  onClick={() => handleDeleteFile(selectedFile.id)}
-                  className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {!selectedFile.id.startsWith('mock-') && (
+                  <button
+                    onClick={() => handleDeleteFile(selectedFile.id)}
+                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               {/* AI Chat */}
