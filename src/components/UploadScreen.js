@@ -51,109 +51,15 @@ const UploadScreen = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target.result;
-        // For demo purposes, create mock content based on file type
-        const mockContent = generateMockContent(file.name, file.type);
-        resolve(mockContent);
+        // Use actual file content for AI analysis
+        resolve(result);
       };
       reader.onerror = (e) => reject(e);
       reader.readAsText(file);
     });
   };
 
-  const generateMockContent = (fileName, fileType) => {
-    const fileExt = fileName.split('.').pop().toLowerCase();
-    
-    // Generate realistic mock content based on file type
-    if (fileExt === 'pdf' || fileType.includes('document')) {
-      if (fileName.toLowerCase().includes('blood')) {
-        return `Complete Blood Count (CBC) Results
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-LABORATORY VALUES:
-- Hemoglobin: 14.2 g/dL (Normal: 12-16)
-- Hematocrit: 42.5% (Normal: 36-46)
-- White Blood Cells: 7.2 K/μL (Normal: 4.5-11)
-- Red Blood Cells: 4.8 M/μL (Normal: 4.2-5.4)
-- Platelets: 285 K/μL (Normal: 150-450)
-- Glucose: 95 mg/dL (Normal: 70-100)
-- Total Cholesterol: 185 mg/dL (Normal: <200)
-
-INTERPRETATION:
-All values are within normal limits. No abnormalities detected.
-
-RECOMMENDATIONS:
-Continue regular health monitoring. Results are satisfactory.`;
-      } else if (fileName.toLowerCase().includes('mri')) {
-        return `MRI Brain Report
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-TECHNIQUE:
-Multiplanar, multisequence MRI of the brain without contrast.
-
-FINDINGS:
-- Brain parenchyma: Normal
-- Ventricular system: Normal size and configuration
-- Cerebral hemispheres: Symmetric
-- Cerebellum: Normal
-- Brainstem: Normal
-- No acute intracranial abnormality
-- No mass lesions or areas of abnormal enhancement
-
-IMPRESSION:
-Normal brain MRI. No acute intracranial pathology.`;
-      } else if (fileName.toLowerCase().includes('ecg') || fileName.toLowerCase().includes('ekg')) {
-        return `Electrocardiogram (ECG) Report
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-RHYTHM: Normal sinus rhythm
-RATE: 72 beats per minute
-PR INTERVAL: 160 ms (Normal: 120-200)
-QRS DURATION: 88 ms (Normal: <120)
-QT INTERVAL: 380 ms (Normal: <440)
-
-INTERPRETATION:
-- Normal sinus rhythm
-- Normal PR interval
-- Normal QRS duration
-- No ST-T wave abnormalities
-- No arrhythmias detected
-
-IMPRESSION:
-Normal ECG. No acute cardiac abnormalities.`;
-      } else {
-        return `Medical Report
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-This is a medical document containing important health information. The report includes various medical findings, test results, and recommendations that should be reviewed by a healthcare professional.
-
-Key findings and values are presented in this document, along with clinical interpretations and follow-up recommendations.`;
-      }
-    } else if (fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'png') {
-      return `Medical Imaging Report
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-This is a medical imaging file containing diagnostic images. The images show various anatomical structures and may reveal important diagnostic information.
-
-Common findings in medical imaging include:
-- Normal anatomical structures
-- Areas of interest for diagnosis
-- Measurements and comparisons
-- Recommendations for follow-up
-
-Please consult with a radiologist or healthcare provider for proper interpretation of these images.`;
-    } else {
-      return `Medical Document
-Date: ${new Date().toLocaleDateString()}
-Patient: Demo User
-
-This medical document contains important health information including test results, findings, and recommendations. The document should be reviewed by a qualified healthcare professional for proper interpretation and medical advice.`;
-    }
-  };
+  // Mock content generation removed - using real file content only
 
   const handleFileUpload = async (files) => {
     const uploadedFiles = Array.from(files);
@@ -261,19 +167,19 @@ This medical document contains important health information including test resul
     const userMessage = { sender: 'user', text: aiInput.trim(), timestamp: new Date() };
     setAiMessages(prev => [...prev, userMessage]);
 
-    // Only save to database if it's a real uploaded file and user is logged in
-    if (user && !selectedFile.id.startsWith('mock-')) {
-      try {
-        await database.addAIChat({
-          user_id: user.id,
-          file_id: selectedFile.id,
-          message: aiInput.trim(),
-          sender: 'user'
-        });
-      } catch (error) {
-        console.log('Database save failed:', error);
+      // Save to database if user is logged in
+      if (user) {
+        try {
+          await database.addAIChat({
+            user_id: user.id,
+            file_id: selectedFile.id,
+            message: aiInput.trim(),
+            sender: 'user'
+          });
+        } catch (error) {
+          console.log('Database save failed:', error);
+        }
       }
-    }
 
     const currentInput = aiInput.trim();
     setAiInput('');
@@ -286,19 +192,19 @@ This medical document contains important health information including test resul
       const aiMessage = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
       setAiMessages(prev => [...prev, aiMessage]);
       
-      // Only save to database if it's a real uploaded file and user is logged in
-      if (user && !selectedFile.id.startsWith('mock-')) {
-        try {
-          await database.addAIChat({
-            user_id: user.id,
-            file_id: selectedFile.id,
-            message: aiResponseText,
-            sender: 'ai'
-          });
-        } catch (error) {
-          console.log('Database save failed:', error);
+        // Save to database if user is logged in
+        if (user) {
+          try {
+            await database.addAIChat({
+              user_id: user.id,
+              file_id: selectedFile.id,
+              message: aiResponseText,
+              sender: 'ai'
+            });
+          } catch (error) {
+            console.log('Database save failed:', error);
+          }
         }
-      }
     } catch (error) {
       console.error('Error getting AI chat response:', error);
       const errorMessage = { sender: 'ai', text: 'Sorry, I could not process your request at this time.', timestamp: new Date() };
