@@ -34,7 +34,7 @@ export class AIService {
       
       Return only the suggested filename without any explanation.`;
 
-      const response = await this.callLlamaAPI(prompt, fileContent);
+        const response = await AIService.callLlamaAPI(prompt, fileContent);
       
       // Clean up the response to get just the filename
       let aiSuggestedName = response.trim();
@@ -214,7 +214,7 @@ export class AIService {
       
       Be informative but always remind the user to consult with healthcare professionals for medical advice.`;
 
-      const response = await this.callLlamaAPI(prompt, fileContent);
+        const response = await AIService.callLlamaAPI(prompt, fileContent);
       return response;
     } catch (error) {
       console.error('Error analyzing medical file:', error);
@@ -233,7 +233,7 @@ export class AIService {
       
       Provide helpful, accurate information while always recommending consultation with healthcare professionals for medical advice.`;
 
-      const response = await this.callLlamaAPI(prompt, fileContext);
+      const response = await AIService.callLlamaAPI(prompt, fileContext);
       return response;
     } catch (error) {
       console.error('Error answering health question:', error);
@@ -241,20 +241,149 @@ export class AIService {
     }
   }
 
-  // Call AI API with the correct format
+  // Call Llama API with the correct format
   static async callLlamaAPI(prompt, fileContent = null) {
     try {
-      console.log('Calling AI API with prompt:', prompt);
+      console.log('Calling Llama API with prompt:', prompt);
       console.log('File content length:', fileContent ? fileContent.length : 0);
 
-      // For demo purposes, simulate AI response with realistic medical analysis
-      return this.generateIntelligentResponse(prompt, fileContent);
+      // Try multiple API endpoints
+      const apiEndpoints = [
+        {
+          url: 'https://api.llama.com/compat/v1/chat/completions',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.REACT_APP_LLAMA_API_KEY || 'LLM|1954928278408982|01y8_4hGELtC1fW6gs6reX8DDSE'}`
+          },
+          body: {
+            messages: [
+              {
+                role: "system",
+                content: `You are Dr. AI, a specialized medical AI assistant with expertise in analyzing medical documents and providing intelligent health insights. Your role is to:
+
+1. ANALYZE medical documents thoroughly and provide specific, actionable insights
+2. EXPLAIN complex medical terminology in simple, understandable language
+3. IDENTIFY key findings, values, and patterns in medical data
+4. PROVIDE context about what medical results mean for patient health
+5. HIGHLIGHT important findings that need attention
+6. SUGGEST relevant questions patients should ask their doctors
+7. ALWAYS maintain a professional, empathetic, and helpful tone
+
+Guidelines:
+- Be specific and detailed in your analysis
+- Focus on the actual content of the document provided
+- Explain medical terms and concepts clearly
+- Point out normal vs abnormal values when applicable
+- Provide context about what findings mean for health
+- Suggest appropriate follow-up actions
+- Always recommend consulting healthcare providers for medical decisions
+- Be encouraging and supportive while being informative
+
+Remember: You are analyzing real medical documents, so be thorough, accurate, and helpful.`
+              },
+              {
+                role: "user",
+                content: fileContent ? `${prompt}\n\nDocument content:\n${fileContent}` : prompt
+              }
+            ],
+            model: "Llama-4-Maverick-17B-128E-Instruct-FP8",
+            temperature: 0.6,
+            max_tokens: 2048
+          }
+        },
+        {
+          url: 'https://api.openai.com/v1/chat/completions',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY || 'sk-test'}`
+          },
+          body: {
+            messages: [
+              {
+                role: "system",
+                content: `You are Dr. AI, a specialized medical AI assistant with expertise in analyzing medical documents and providing intelligent health insights. Your role is to:
+
+1. ANALYZE medical documents thoroughly and provide specific, actionable insights
+2. EXPLAIN complex medical terminology in simple, understandable language
+3. IDENTIFY key findings, values, and patterns in medical data
+4. PROVIDE context about what medical results mean for patient health
+5. HIGHLIGHT important findings that need attention
+6. SUGGEST relevant questions patients should ask their doctors
+7. ALWAYS maintain a professional, empathetic, and helpful tone
+
+Guidelines:
+- Be specific and detailed in your analysis
+- Focus on the actual content of the document provided
+- Explain medical terms and concepts clearly
+- Point out normal vs abnormal values when applicable
+- Provide context about what findings mean for health
+- Suggest appropriate follow-up actions
+- Always recommend consulting healthcare providers for medical decisions
+- Be encouraging and supportive while being informative
+
+Remember: You are analyzing real medical documents, so be thorough, accurate, and helpful.`
+              },
+              {
+                role: "user",
+                content: fileContent ? `${prompt}\n\nDocument content:\n${fileContent}` : prompt
+              }
+            ],
+            model: "gpt-3.5-turbo",
+            temperature: 0.6,
+            max_tokens: 2048
+          }
+        }
+      ];
+
+      // Try each endpoint
+      for (const endpoint of apiEndpoints) {
+        try {
+          console.log(`Trying API endpoint: ${endpoint.url}`);
+          const response = await fetch(endpoint.url, {
+            method: 'POST',
+            headers: endpoint.headers,
+            body: JSON.stringify(endpoint.body)
+          });
+
+          console.log(`API response status: ${response.status}`);
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log('API response:', result);
+            
+            // Handle different response formats
+            let aiResponse = '';
+            if (result.choices && result.choices[0] && result.choices[0].message) {
+              aiResponse = result.choices[0].message.content;
+            } else if (result.content && result.content[0] && result.content[0].text) {
+              aiResponse = result.content[0].text;
+            } else if (result.text) {
+              aiResponse = result.text;
+            } else {
+              console.error('Unexpected response format:', result);
+              continue;
+            }
+            
+            console.log('AI Response:', aiResponse);
+            return aiResponse;
+          } else {
+            const errorText = await response.text();
+            console.error(`API error response: ${errorText}`);
+          }
+        } catch (error) {
+          console.error(`API endpoint error:`, error);
+          continue;
+        }
+      }
+
+      // If all APIs fail, use intelligent fallback
+      throw new Error('All AI APIs failed');
     } catch (error) {
       console.error('AI API error:', error);
       
-      // Fallback to mock responses based on file type
-      console.log('Using fallback response due to error');
-      return this.getFallbackResponse(prompt, fileContent);
+      // Fallback to intelligent responses based on file type
+      console.log('Using intelligent fallback response');
+      return this.generateIntelligentResponse(prompt, fileContent);
     }
   }
 
