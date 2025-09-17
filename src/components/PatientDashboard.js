@@ -47,7 +47,7 @@ const PatientDashboard = ({ user, onNavigate }) => {
   // Removed family member logic - focusing on individual user
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pb-24 max-w-mobile mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pb-20 max-w-mobile mx-auto">
       {/* Header - Perfect spacing and typography */}
       <div className="px-6 py-8 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="flex items-center justify-between">

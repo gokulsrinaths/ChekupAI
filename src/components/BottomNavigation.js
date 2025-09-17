@@ -38,12 +38,12 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl z-50"
+      className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-mobile bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl z-50"
       style={{ 
         boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.12)',
       }}
     >
-      <div className="flex items-center justify-around py-4 px-6">
+      <div className="flex items-center justify-around py-3 px-4">
         {navItems.map((item, index) => {
           const isActive = currentScreen === item.screen;
           
@@ -56,9 +56,9 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onScreenChange(item.screen)}
-              className={`flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ${
+              className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-300 ${
                 isActive 
-                  ? 'text-blue-600 bg-blue-50/80 shadow-md' 
+                  ? 'text-blue-600 bg-blue-50/80 shadow-sm' 
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               }`}
               aria-label={`Navigate to ${item.label}`}
@@ -68,7 +68,7 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
                 animate={{ scale: isActive ? 1.1 : 1 }}
                 transition={{ duration: 0.2 }}
               >
-                <item.icon className="w-6 h-6 mb-1" />
+                <item.icon className="w-5 h-5 mb-1" />
               </motion.div>
               <span className={`text-xs font-medium transition-all duration-300 ${
                 isActive ? 'text-blue-600' : 'text-gray-500'
@@ -80,13 +80,8 @@ const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patien
         })}
       </div>
       
-      {/* Perfect safe area for devices with home indicator */}
-      <div 
-        className="h-3 bg-gradient-to-t from-white/95 to-transparent" 
-        style={{ 
-          backdropFilter: 'blur(10px)'
-        }}
-      />
+      {/* Mobile app safe area */}
+      <div className="h-2 bg-white/95" />
     </motion.div>
   );
 };
