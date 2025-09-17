@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const DashboardScreen = ({ userData, onDataUpdate, onConsentToggle }) => {
+const DashboardScreen = ({ userData, onDataUpdate, onConsentToggle, onNavigate }) => {
   const handleToggleResearch = () => {
     const newConsent = !userData.allowResearch;
     onDataUpdate({ allowResearch: newConsent });
@@ -43,61 +43,92 @@ const DashboardScreen = ({ userData, onDataUpdate, onConsentToggle }) => {
 
   return (
     <div className="min-h-screen bg-white pb-24 w-full max-w-mobile mx-auto">
-      {/* Header with balance top-right */}
-      <div className="px-4 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
-        <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-xl">
-          <span className="text-xs text-gray-600">Balance</span>
-          <span className="text-base font-semibold text-gray-900">${userData.balance.toFixed(2)}</span>
-        </div>
+      {/* Header */}
+      <div className="px-4 py-4">
+        <h1 className="text-lg font-semibold text-gray-900">Health Dashboard</h1>
+        <p className="text-xs text-gray-500 mt-1">Manage your health data and family records</p>
       </div>
 
-      {/* Summary (center) */}
+      {/* Health Summary */}
       <div className="px-4 mb-4">
-        <div className="brand-pulse rounded-2xl p-4 border border-gray-100 text-center">
-          <p className="text-xs text-gray-600 mb-1">Files Uploaded</p>
-          <p className="text-2xl font-semibold text-gray-900">{totalFiles}</p>
-        </div>
-      </div>
-
-      {/* Latest Update */}
-      <div className="px-4 mb-4">
-        <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-600">Latest Update</p>
-            {latestFile ? (
-              <p className="text-xs text-gray-900 truncate">
-                {latestFile.date} • {latestFile.name} ({latestFile.type})
-              </p>
-            ) : (
-              <p className="text-xs text-gray-900">No recent updates</p>
-            )}
+        <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-4 border border-gray-100">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-xs text-gray-600 mb-1">Health Records</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalFiles}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-600 mb-1">Family Members</p>
+              <p className="text-2xl font-semibold text-gray-900">3</p>
+            </div>
           </div>
-          {latestFile && (
-            <span className={`text-[10px] px-2 py-1 rounded flex-shrink-0 ml-2 ${getFileStatusColor(latestFile.status)}`}>
-              {getFileStatusText(latestFile.status)}
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Research Toggle Section */}
+      {/* Quick Actions */}
       <div className="px-4 mb-4">
-        <div className="bg-gray-50 rounded-lg p-3">
+        <div className="grid grid-cols-2 gap-3">
+          <button 
+            onClick={() => onNavigate?.('upload')}
+            className="bg-blue-600 text-white p-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            📄 Upload Documents
+          </button>
+          <button 
+            onClick={() => onNavigate?.('family')}
+            className="bg-green-600 text-white p-3 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+          >
+            👥 Family Health
+          </button>
+        </div>
+      </div>
+
+      {/* Family Health */}
+      <div className="px-4 mb-4">
+        <div className="bg-gray-50 rounded-xl p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-medium text-gray-900 text-sm">Family Health</h3>
+            <button 
+              onClick={() => onNavigate?.('family')}
+              className="text-blue-600 text-xs"
+            >
+              Manage
+            </button>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">👤</span>
+              <span className="text-xs text-gray-600">John Doe (You)</span>
+              <span className="text-[10px] px-2 py-1 rounded bg-green-100 text-green-600">Active</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">👩</span>
+              <span className="text-xs text-gray-600">Sarah Doe (Wife)</span>
+              <span className="text-[10px] px-2 py-1 rounded bg-green-100 text-green-600">Active</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">👶</span>
+              <span className="text-xs text-gray-600">Emma Doe (Daughter)</span>
+              <span className="text-[10px] px-2 py-1 rounded bg-yellow-100 text-yellow-600">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Health Assistant */}
+      <div className="px-4 mb-4">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-gray-900 text-sm">Research Participation</h3>
-              <p className="text-xs text-gray-600">Share data for research</p>
+              <h3 className="font-medium text-gray-900 text-sm">Health Assistant</h3>
+              <p className="text-xs text-gray-600">AI-powered health insights</p>
             </div>
-            <div
-              onClick={handleToggleResearch}
-              onKeyPress={handleKeyPress}
-              tabIndex={0}
-              role="switch"
-              aria-checked={userData.allowResearch}
-              aria-label="Allow anonymized data for research"
-              className={`toggle-switch cursor-pointer flex-shrink-0 ${userData.allowResearch ? 'active' : ''}`}
-            />
+            <button 
+              onClick={() => onNavigate?.('chatbot')}
+              className="bg-purple-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-purple-700 transition-colors"
+            >
+              Chat
+            </button>
           </div>
         </div>
       </div>

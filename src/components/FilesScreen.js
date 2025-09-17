@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { analyzeWithLlama, getHealthInsights } from '../config/llama';
 
 const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -9,8 +10,17 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
   const [showAI, setShowAI] = useState(false);
   const [aiInput, setAiInput] = useState('');
   const [aiMessages, setAiMessages] = useState([]);
+  const [showAddFile, setShowAddFile] = useState(false);
+  const [newFile, setNewFile] = useState({
+    name: '',
+    type: 'Imaging',
+    size: '',
+    description: ''
+  });
+  const [uploading, setUploading] = useState(false);
   const aiInputRef = useRef(null);
   const aiLogRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const files = userData.files;
 
@@ -39,6 +49,101 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
     }
     if (action === 'view') {
       setShowDetail(true);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      setUploading(true);
+      
+      // Process each file
+      Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileData = {
+            id: Date.now() + index,
+            name: file.name,
+            type: getFileType(file.name),
+            size: formatFileSize(file.size),
+            date: new Date().toISOString().slice(0, 10),
+            status: 'private',
+            icon: getFileIcon(file.name),
+            earnings: 0,
+            content: e.target.result, // Store file content for AI analysis
+            file: file // Store original file object
+          };
+          
+          // Add to user data
+          const updatedFiles = [...userData.files, fileData];
+          onDataUpdate({ files: updatedFiles });
+          
+          // Log audit event
+          onAddAuditEvent({
+            actor: 'Patient',
+            action: 'File Uploaded',
+            scope: fileData.type,
+            details: `File: ${fileData.name}, Size: ${fileData.size}`
+          });
+        };
+        reader.readAsText(file);
+      });
+      
+      setTimeout(() => setUploading(false), 2000);
+    }
+  };
+
+  const getFileType = (filename) => {
+    const ext = filename.split('.').pop().toLowerCase();
+    const types = {
+      'pdf': 'Document',
+      'doc': 'Document',
+      'docx': 'Document',
+      'jpg': 'Imaging',
+      'jpeg': 'Imaging',
+      'png': 'Imaging',
+      'dcm': 'DICOM',
+      'txt': 'Notes',
+      'xlsx': 'Spreadsheet',
+      'csv': 'Data'
+    };
+    return types[ext] || 'Other';
+  };
+
+  const getFileIcon = (filename) => {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+      'pdf': '📄',
+      'doc': '📝',
+      'docx': '📝',
+      'jpg': '🖼️',
+      'jpeg': '🖼️',
+      'png': '🖼️',
+      'dcm': '🏥',
+      'txt': '📋',
+      'xlsx': '📊',
+      'csv': '📈'
+    };
+    return icons[ext] || '📁';
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const analyzeFileWithLlamaAPI = async (file) => {
+    if (!file.content) return 'No file content available for analysis.';
+    
+    try {
+      const analysis = await analyzeWithLlama(file.content, file.type);
+      return analysis;
+    } catch (error) {
+      console.error('Llama API error:', error);
+      return 'Unable to analyze file at this time. Please try again later.';
     }
   };
 
@@ -84,11 +189,29 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
     return 'Try questions like: "What is the size?", "Is this private or shared?", "How much did this earn?", or "Type breakdown".';
   };
 
-  const sendAI = () => {
+  const sendAI = async () => {
     if (!aiInput.trim()) return;
     const userMsg = { id: Date.now(), role: 'user', text: aiInput.trim() };
-    const botMsg = { id: Date.now()+1, role: 'assistant', text: getAIReply(aiInput, selectedFile) };
-    setAiMessages(prev => [...prev, userMsg, botMsg]);
+    setAiMessages(prev => [...prev, userMsg]);
+    
+    // Use Llama API for medical file analysis
+    try {
+      const analysis = await analyzeFileWithLlamaAPI(selectedFile);
+      const botMsg = { 
+        id: Date.now()+1, 
+        role: 'assistant', 
+        text: analysis
+      };
+      setAiMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      const botMsg = { 
+        id: Date.now()+1, 
+        role: 'assistant', 
+        text: `I can help you understand this ${selectedFile?.type} file. The document contains medical information that I can help interpret. What would you like to know about it?`
+      };
+      setAiMessages(prev => [...prev, botMsg]);
+    }
+    
     setAiInput('');
   };
 
@@ -110,12 +233,29 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
       {/* Header */}
       <div className="px-4 py-4 flex items-center justify-between">
         <h1 className="text-lg font-semibold text-gray-900">Files</h1>
-        <button
-          onClick={() => setShowDetail(true) || setSelectedFile({ id: Date.now(), name: 'New File', type: 'Imaging', status: 'private', icon: '🖼️', size: '—', date: new Date().toISOString().slice(0,10), earnings: 0 })}
-          className="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs"
-        >
-          Add File
-        </button>
+        <div className="flex space-x-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.dcm,.txt,.xlsx,.csv"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="file-upload"
+          />
+          <label
+            htmlFor="file-upload"
+            className="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs cursor-pointer hover:bg-blue-700 transition-colors"
+          >
+            {uploading ? 'Uploading...' : 'Upload Files'}
+          </label>
+          <button
+            onClick={() => setShowAddFile(true)}
+            className="px-3 py-2 rounded-lg bg-green-600 text-white text-xs hover:bg-green-700 transition-colors"
+          >
+            Add Manually
+          </button>
+        </div>
       </div>
 
       {/* Files List */}
@@ -141,6 +281,121 @@ const FilesScreen = ({ userData, onDataUpdate, onAddAuditEvent }) => {
           ))}
         </div>
       </div>
+
+      {/* Add File Modal */}
+      <AnimatePresence>
+        {showAddFile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowAddFile(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg p-6 max-w-sm w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Add File Manually</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">File Name</label>
+                  <input
+                    type="text"
+                    value={newFile.name}
+                    onChange={(e) => setNewFile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter file name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">File Type</label>
+                  <select
+                    value={newFile.type}
+                    onChange={(e) => setNewFile(prev => ({ ...prev, type: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="Imaging">Imaging</option>
+                    <option value="Lab">Lab Results</option>
+                    <option value="Notes">Notes</option>
+                    <option value="Document">Document</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">File Size</label>
+                  <input
+                    type="text"
+                    value={newFile.size}
+                    onChange={(e) => setNewFile(prev => ({ ...prev, size: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 2.5 MB"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    value={newFile.description}
+                    onChange={(e) => setNewFile(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Brief description of the file"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => setShowAddFile(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (newFile.name) {
+                      const fileData = {
+                        id: Date.now(),
+                        name: newFile.name,
+                        type: newFile.type,
+                        size: newFile.size || 'Unknown',
+                        date: new Date().toISOString().slice(0, 10),
+                        status: 'private',
+                        icon: getFileIcon(newFile.name),
+                        earnings: 0,
+                        description: newFile.description
+                      };
+                      
+                      const updatedFiles = [...userData.files, fileData];
+                      onDataUpdate({ files: updatedFiles });
+                      
+                      onAddAuditEvent({
+                        actor: 'Patient',
+                        action: 'File Added Manually',
+                        scope: fileData.type,
+                        details: `File: ${fileData.name}`
+                      });
+                      
+                      setNewFile({ name: '', type: 'Imaging', size: '', description: '' });
+                      setShowAddFile(false);
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                >
+                  Add File
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Share Modal */}
       <AnimatePresence>

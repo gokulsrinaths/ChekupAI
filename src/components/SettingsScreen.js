@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 const SettingsScreen = ({ userData, onDataUpdate, onViewAuditLog, onNavigate }) => {
   const [notifications, setNotifications] = useState(true);
   const [dataSharing, setDataSharing] = useState(userData.allowResearch);
+  const [language, setLanguage] = useState('en');
+  const [darkMode, setDarkMode] = useState(false);
 
   const handleNotificationToggle = () => {
     setNotifications(!notifications);
@@ -78,6 +80,46 @@ const SettingsScreen = ({ userData, onDataUpdate, onViewAuditLog, onNavigate }) 
               aria-checked={notifications}
               aria-label="Enable notifications"
               className={`toggle-switch cursor-pointer ${notifications ? 'active' : ''}`}
+            />
+          </div>
+        </div>
+
+        {/* Language Selection */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Language</h3>
+              <p className="text-sm text-gray-600">App language preference</p>
+            </div>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="zh">中文</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Dark Mode */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Dark Mode</h3>
+              <p className="text-sm text-gray-600">Switch to dark theme</p>
+            </div>
+            <div
+              onClick={() => setDarkMode(!darkMode)}
+              onKeyPress={(e) => handleKeyPress(e, () => setDarkMode(!darkMode))}
+              tabIndex={0}
+              role="switch"
+              aria-checked={darkMode}
+              aria-label="Toggle dark mode"
+              className={`toggle-switch cursor-pointer ${darkMode ? 'active' : ''}`}
             />
           </div>
         </div>

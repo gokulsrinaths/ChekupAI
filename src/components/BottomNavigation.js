@@ -1,15 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, FolderClosed, Wallet2, Settings, Microscope, Pill } from 'lucide-react';
+import { Home, FolderClosed, Wallet2, Settings, Microscope, Pill, Users, Upload, MessageCircle, Award } from 'lucide-react';
 
 const BottomNavigation = ({ currentScreen, onScreenChange, currentRole = 'patient' }) => {
   const getNavItems = () => {
-    const baseItems = [
-      { id: 'dashboard', label: 'Home', icon: Home, screen: 'dashboard' },
-      { id: 'files', label: 'Files', icon: FolderClosed, screen: 'files' },
-      { id: 'wallet', label: 'Wallet', icon: Wallet2, screen: 'wallet' },
-      { id: 'settings', label: 'Settings', icon: Settings, screen: 'settings' }
-    ];
+  const baseItems = [
+    { id: 'dashboard', label: 'Home', icon: Home, screen: 'dashboard' },
+    { id: 'family', label: 'Family', icon: Users, screen: 'family' },
+    { id: 'upload', label: 'Upload', icon: Upload, screen: 'upload' },
+    { id: 'points', label: 'Points', icon: Award, screen: 'points' },
+    { id: 'settings', label: 'Settings', icon: Settings, screen: 'settings' }
+  ];
 
     if (currentRole === 'doctor') {
       return [
