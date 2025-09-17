@@ -140,7 +140,7 @@ const MainApp = () => {
       case 'points':
         return <PointsRewardsScreen />;
       case 'settings':
-        return <SettingsScreen onNavigate={setCurrentScreen} />;
+        return <SettingsScreen userData={userData} onDataUpdate={handleDataUpdate} onViewAuditLog={() => setCurrentScreen('audit-log')} onNavigate={setCurrentScreen} />;
       case 'family':
         return <FamilyDashboard />;
       case 'upload':

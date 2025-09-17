@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const SettingsScreen = ({ userData, onDataUpdate, onViewAuditLog, onNavigate }) => {
   const [notifications, setNotifications] = useState(true);
-  const [dataSharing, setDataSharing] = useState(userData.allowResearch);
+  const [dataSharing, setDataSharing] = useState(userData?.allowResearch || false);
   const [language, setLanguage] = useState('en');
   const [darkMode, setDarkMode] = useState(false);
 
